@@ -3,10 +3,10 @@ import Link from "next/link";
 export default function Footer() {
   return (
     <footer className="bg-[#1a1a2e] text-white">
-      <div className="max-w-[1400px] mx-auto px-8 py-16">
-        <div className="grid md:grid-cols-4 gap-12">
+      <div className="max-w-[1400px] mx-auto px-5 md:px-8 py-10 md:py-16">
+        <div className="grid md:grid-cols-4 gap-8 md:gap-12">
           <div className="md:col-span-1">
-            <h2 className="text-3xl font-extrabold tracking-tight text-[#D4A24C] mb-4">
+            <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#D4A24C] mb-4">
               NIDDLE
             </h2>
             <p className="text-gray-400 text-sm leading-relaxed">

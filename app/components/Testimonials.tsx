@@ -1,14 +1,14 @@
 export default function Testimonials() {
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-white relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#D4A24C]/5 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-block text-sm font-semibold text-[#D4A24C] uppercase tracking-widest mb-3">
             Testimonials
           </span>
-          <h2 className="text-5xl font-bold text-[#5A432C] mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-[#5A432C] mb-4">
             What Lagos Says
           </h2>
           <p className="text-gray-600 max-w-xl mx-auto">
@@ -16,7 +16,7 @@ export default function Testimonials() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-5 md:gap-8">
           <TestimonialCard
             name="Sarah L."
             location="Victoria Island"
@@ -53,7 +53,7 @@ function TestimonialCard({
   text: string;
 }) {
   return (
-    <div className="bg-white border border-gray-100 p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group">
+    <div className="bg-white border border-gray-100 p-5 md:p-8 rounded-3xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative group">
       <div className="absolute top-0 left-8 -translate-y-1/2 w-10 h-10 rounded-xl bg-[#D4A24C]/10 flex items-center justify-center">
         <span className="text-[#D4A24C] text-lg">&ldquo;</span>
       </div>

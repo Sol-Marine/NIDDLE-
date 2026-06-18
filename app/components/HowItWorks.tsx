@@ -1,14 +1,14 @@
 export default function HowItWorks() {
   return (
-    <section className="py-24 bg-white relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-white relative overflow-hidden">
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-[#D4A24C]/5 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-block text-sm font-semibold text-[#D4A24C] uppercase tracking-widest mb-3">
             Simple Process
           </span>
-          <h2 className="text-5xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
             How It Works
           </h2>
           <p className="text-gray-600 max-w-xl mx-auto">
@@ -16,7 +16,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 relative">
+        <div className="grid md:grid-cols-3 gap-5 md:gap-8 relative">
           <StepCard
             number="01"
             icon="📦"
@@ -56,7 +56,7 @@ function StepCard({
 }) {
   return (
     <div className="relative group">
-      <div className="bg-white border border-gray-100 rounded-3xl p-8 text-center shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
+      <div className="bg-white border border-gray-100 rounded-3xl p-5 md:p-8 text-center shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#D4A24C]/15 to-[#C2533D]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
           <span className="text-3xl">{icon}</span>
         </div>

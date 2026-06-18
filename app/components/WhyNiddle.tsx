@@ -1,14 +1,14 @@
 export default function WhyNiddle() {
   return (
-    <section className="py-24 bg-[#FFF8F0] relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-[#FFF8F0] relative overflow-hidden">
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#D4A24C]/8 rounded-full blur-3xl" />
 
       <div className="max-w-7xl mx-auto px-6 relative">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 md:mb-16">
           <span className="inline-block text-sm font-semibold text-[#D4A24C] uppercase tracking-widest mb-3">
             Why Choose Us
           </span>
-          <h2 className="text-5xl font-bold text-[#5A432C] mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-[#5A432C] mb-4">
             Why Niddle
           </h2>
           <p className="text-gray-600 max-w-xl mx-auto">
@@ -71,7 +71,7 @@ function ReasonCard({
   iconBg: string;
 }) {
   return (
-    <div className={`bg-gradient-to-br ${gradient} p-8 rounded-3xl border ${borderColor} shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group`}>
+    <div className={`bg-gradient-to-br ${gradient} p-5 md:p-8 rounded-3xl border ${borderColor} shadow-lg hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group`}>
       <div className={`w-14 h-14 rounded-2xl ${iconBg} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
         <span className="text-2xl">{icon}</span>
       </div>
