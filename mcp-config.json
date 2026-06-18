@@ -1,0 +1,9 @@
+{
+  "name": "magic",
+  "type": "stdio",
+  "command": "npx",
+  "args": ["-y", "@21st-dev/magic@latest"],
+  "env": {
+    "API_KEY": "857ef8be2d1790cb1ae3e23e0addef91ff19d25f4d258952b2c653e492cc3de0"
+  }
+}
