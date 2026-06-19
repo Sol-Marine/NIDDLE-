@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -33,6 +33,20 @@ export default function TrackPage() {
   const [confirmName, setConfirmName] = useState("");
   const [confirmNote, setConfirmNote] = useState("");
   const [showMap, setShowMap] = useState(false);
+  const [negotiatePrice, setNegotiatePrice] = useState("");
+  const [negotiating, setNegotiating] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      setTrackingId(id);
+      getDeliveryById(id).then((found) => {
+        setSearched(true);
+        setDelivery(found || null);
+      });
+    }
+  }, []);
 
   const activeStep = delivery
     ? statusSteps.findIndex((s) => s.key === delivery.status)
@@ -64,6 +78,25 @@ export default function TrackPage() {
       receivedBy: confirmName.trim(),
       proofNote: confirmNote.trim() || undefined,
     });
+  };
+
+  const handleNegotiate = async () => {
+    if (!delivery || !negotiatePrice) return;
+    setNegotiating(true);
+    const newPrice = parseInt(negotiatePrice);
+    await updateDelivery(delivery.id, {
+      price: newPrice,
+      negotiationStatus: "counter-offer",
+    });
+    setDelivery({ ...delivery, price: newPrice, negotiationStatus: "counter-offer" });
+    setNegotiatePrice("");
+    setNegotiating(false);
+  };
+
+  const handleAcceptPrice = async () => {
+    if (!delivery) return;
+    await updateDelivery(delivery.id, { negotiationStatus: "agreed" });
+    setDelivery({ ...delivery, negotiationStatus: "agreed" });
   };
 
   return (
@@ -258,6 +291,59 @@ export default function TrackPage() {
                       <InfoRow label="Recipient" value={delivery.recipientName} />
                       <InfoRow label="Recipient Phone" value={delivery.recipientPhone} />
                     </div>
+                  </div>
+
+                  {/* Price & Negotiation */}
+                  <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FFF0E0] rounded-2xl p-6 border border-[#D4A24C]/20">
+                    <h3 className="font-bold text-lg mb-3">Delivery Price</h3>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-gray-500 text-sm">Quoted Price</span>
+                      <span className="text-2xl font-extrabold text-[#5A432C]">₦{delivery.price.toLocaleString()}</span>
+                    </div>
+                    {delivery.negotiationStatus === "agreed" ? (
+                      <div className="bg-green-100 text-green-700 text-sm font-semibold rounded-xl p-3 text-center">
+                        ✓ Price agreed
+                      </div>
+                    ) : delivery.negotiationStatus === "counter-offer" ? (
+                      <div className="space-y-3">
+                        <div className="bg-blue-100 text-blue-700 text-sm font-semibold rounded-xl p-3 text-center">
+                          Counter-offer: ₦{delivery.price.toLocaleString()}
+                        </div>
+                        <button
+                          onClick={handleAcceptPrice}
+                          className="w-full bg-green-600 text-white py-3 rounded-xl font-semibold text-sm hover:bg-green-700 transition"
+                        >
+                          ✓ Accept this price
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex gap-2">
+                          <div className="relative flex-1">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-semibold text-sm">₦</span>
+                            <input
+                              type="number"
+                              value={negotiatePrice}
+                              onChange={(e) => setNegotiatePrice(e.target.value)}
+                              placeholder="Your offer"
+                              className="w-full border-2 border-gray-200 rounded-xl p-3 pl-8 text-sm focus:border-[#D4A24C] outline-none transition-all"
+                            />
+                          </div>
+                          <button
+                            onClick={handleNegotiate}
+                            disabled={!negotiatePrice || negotiating}
+                            className={`px-5 rounded-xl text-sm font-semibold transition ${
+                              negotiatePrice && !negotiating
+                                ? "bg-[#5A432C] text-white hover:bg-[#4a3520]"
+                                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                            }`}
+                          >
+                            {negotiating ? "..." : "Offer"}
+                          </button>
+                        </div>
+                        <p className="text-xs text-gray-400">Make an offer and the rider can accept or counter</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* Proof of Delivery */}

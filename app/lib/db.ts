@@ -21,6 +21,8 @@ export interface DeliveryOrder {
   riderName: string;
   timeSlot: string;
   price: number;
+  originalPrice?: number;
+  negotiationStatus?: string;
   status: string;
   createdAt: string;
   deliveredAt?: string;

@@ -85,6 +85,20 @@ export default function SendPackagePage() {
     { label: "Receipt", emoji: "🧾" },
   ];
 
+  const calculatePrice = () => {
+    let base = 2000;
+    if (size === "Medium") base = 3500;
+    if (size === "Large") base = 5000;
+    if (handling === "Fragile") base += 500;
+    if (handling === "Perishable") base += 800;
+    if (handling === "Valuable") base += 1000;
+    if (handling === "Urgent") base += 1500;
+    if (selectedTime?.includes("Express") || selectedTime?.includes("Priority")) base += 2000;
+    return base;
+  };
+
+  const estimatedPrice = calculatePrice();
+
   const handleBookDelivery = async () => {
     const id = generateTrackingId();
     setTrackingId(id);
@@ -109,7 +123,9 @@ export default function SendPackagePage() {
       specialInstructions: instructions || "None",
       riderName,
       timeSlot: selectedTime || "Flexible",
-      price: 3500,
+      price: estimatedPrice,
+      originalPrice: estimatedPrice,
+      negotiationStatus: "pending",
       status: "order-placed",
       createdAt: new Date().toLocaleString(),
     };
@@ -507,8 +523,8 @@ export default function SendPackagePage() {
                       <h3 className="font-bold text-lg md:text-xl text-[#5A432C]">Delivery Estimate</h3>
                       <span className="text-sm text-gray-500">Same-day Lagos delivery</span>
                     </div>
-                    <p className="text-3xl md:text-4xl font-extrabold text-[#5A432C]">₦3,500</p>
-                    <p className="text-sm text-gray-500 mt-1">Final price based on distance</p>
+                    <p className="text-3xl md:text-4xl font-extrabold text-[#5A432C]">₦{estimatedPrice.toLocaleString()}</p>
+                    <p className="text-sm text-gray-500 mt-1">Based on {size || "Medium"} {packageType || "parcel"}, {handling !== "None" ? handling : "standard"} handling</p>
                     <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                       Riders available now
@@ -519,7 +535,7 @@ export default function SendPackagePage() {
                     onClick={handleBookDelivery}
                     className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
                   >
-                    Book Delivery — ₦3,500
+                    Book Delivery — ₦{estimatedPrice.toLocaleString()}
                   </button>
                 </div>
               )}
@@ -550,13 +566,13 @@ export default function SendPackagePage() {
                       <ReceiptRow label="Rider" value={selectedRider ? riders.find((r) => r.id === selectedRider)?.name || "Auto-assign" : "Auto-assign"} />
                       <ReceiptRow label="Time Slot" value={selectedTime || "Flexible"} />
                       <ReceiptRow label="Status" value="Order Placed ✓" />
-                      <ReceiptRow label="Amount Paid" value="₦3,500" />
+                      <ReceiptRow label="Amount Paid" value={`₦${estimatedPrice.toLocaleString()}`} />
                       <ReceiptRow label="Booked At" value={new Date().toLocaleString()} />
                     </div>
                   </div>
 
                   <div className="flex flex-col sm:flex-row gap-3">
-                    <Link href={`/track`} className="flex-1">
+                    <Link href={`/track?id=${trackingId}`} className="flex-1">
                       <button className="w-full bg-[#5A432C] text-white py-4 rounded-2xl font-semibold hover:bg-[#4a3520] transition shadow-md">
                         Track Delivery →
                       </button>
