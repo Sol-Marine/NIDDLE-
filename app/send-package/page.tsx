@@ -122,13 +122,13 @@ export default function SendPackagePage() {
     <main className="min-h-screen bg-[#faf7f2] text-gray-900">
       <Navbar />
 
-      <section className="bg-gradient-to-br from-[#FFF8F0] via-white to-[#FFF0E0] py-20">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-sm font-semibold text-[#D4A24C] uppercase tracking-widest">
+      <section className="bg-gradient-to-br from-[#FFF8F0] via-white to-[#FFF0E0] py-14 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+          <div className="text-center mb-8 md:mb-12">
+            <span className="text-xs md:text-sm font-semibold text-[#D4A24C] uppercase tracking-widest">
               Send Something
             </span>
-            <h1 className="text-5xl font-extrabold mt-3 mb-4">Send a Package</h1>
+            <h1 className="text-3xl md:text-5xl font-extrabold mt-3 mb-4">Send a Package</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
               Tell us about your package, set your preferences, and pick the perfect rider.
             </p>
@@ -160,7 +160,7 @@ export default function SendPackagePage() {
               ))}
             </div>
 
-            <div className="p-8 md:p-12">
+            <div className="p-5 md:p-8 lg:p-12">
               {/* STEP 0: Package */}
               {step === 0 && (
                 <div className="space-y-8">
@@ -170,7 +170,7 @@ export default function SendPackagePage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Package Type</label>
-                    <div className="grid grid-cols-4 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {packageTypes.map((t) => (
                         <button
                           key={t.value}
@@ -190,7 +190,7 @@ export default function SendPackagePage() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Package Size</label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {sizes.map((s) => (
                         <button
                           key={s.label}
@@ -217,7 +217,7 @@ export default function SendPackagePage() {
                           key={h.label}
                           type="button"
                           onClick={() => setHandling(h.label)}
-                          className={`flex items-center gap-2 px-5 py-3 rounded-2xl border-2 text-sm font-medium transition-all duration-200 ${
+                          className={`flex items-center gap-2 px-4 py-3 rounded-2xl border-2 text-sm font-medium transition-all duration-200 ${
                             handling === h.label
                               ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                               : "border-gray-100 bg-white hover:border-gray-200"
@@ -397,7 +397,7 @@ export default function SendPackagePage() {
                         key={rider.id}
                         type="button"
                         onClick={() => setSelectedRider(rider.id)}
-                        className={`flex items-center gap-4 p-5 rounded-3xl border-2 text-left transition-all duration-200 ${
+                        className={`flex items-center gap-3 md:gap-4 p-4 md:p-5 rounded-2xl md:rounded-3xl border-2 text-left transition-all duration-200 ${
                           selectedRider === rider.id
                             ? "border-[#D4A24C] bg-[#FFF8F0] shadow-lg"
                             : "border-gray-100 bg-white hover:border-gray-200"
@@ -481,12 +481,12 @@ export default function SendPackagePage() {
                     />
                   </div>
 
-                  <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FFF0E0] rounded-3xl p-8 border border-[#D4A24C]/20">
+                  <div className="bg-gradient-to-br from-[#FFF8F0] to-[#FFF0E0] rounded-3xl p-5 md:p-8 border border-[#D4A24C]/20">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-xl text-[#5A432C]">Delivery Estimate</h3>
+                      <h3 className="font-bold text-lg md:text-xl text-[#5A432C]">Delivery Estimate</h3>
                       <span className="text-sm text-gray-500">Same-day Lagos delivery</span>
                     </div>
-                    <p className="text-4xl font-extrabold text-[#5A432C]">₦3,500</p>
+                    <p className="text-3xl md:text-4xl font-extrabold text-[#5A432C]">₦3,500</p>
                     <p className="text-sm text-gray-500 mt-1">Final price based on distance</p>
                     <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
@@ -496,7 +496,7 @@ export default function SendPackagePage() {
 
                   <button
                     onClick={handleBookDelivery}
-                    className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-5 rounded-2xl text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
+                    className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
                   >
                     Book Delivery — ₦3,500
                   </button>
@@ -514,10 +514,10 @@ export default function SendPackagePage() {
                     <p className="text-gray-500">Your package has been booked. Save your tracking ID below.</p>
                   </div>
 
-                  <div className="bg-[#1a1a2e] rounded-3xl p-8 text-white">
+                  <div className="bg-[#1a1a2e] rounded-3xl p-5 md:p-8 text-white">
                     <div className="text-center mb-6">
                       <p className="text-sm text-gray-400 uppercase tracking-wider mb-1">Tracking ID</p>
-                      <p className="text-3xl font-extrabold tracking-wider text-[#D4A24C]">{trackingId}</p>
+                      <p className="text-xl md:text-3xl font-extrabold tracking-wider text-[#D4A24C] break-all">{trackingId}</p>
                     </div>
 
                     <div className="border-t border-gray-700 pt-6 space-y-3 text-sm">
@@ -560,7 +560,7 @@ export default function SendPackagePage() {
                   <button
                     onClick={prevStep}
                     disabled={step === 0}
-                    className={`px-8 py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
+                    className={`px-5 md:px-8 py-3 md:py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
                       step === 0
                         ? "text-gray-300 cursor-not-allowed"
                         : "border-2 border-gray-200 text-gray-700 hover:border-gray-400"
@@ -582,7 +582,7 @@ export default function SendPackagePage() {
 
                   <button
                     onClick={nextStep}
-                    className="bg-[#5A432C] text-white px-10 py-3.5 rounded-2xl font-semibold hover:bg-[#4a3520] transition-all duration-200 shadow-md"
+                    className="bg-[#5A432C] text-white px-6 md:px-10 py-3 md:py-3.5 rounded-2xl font-semibold hover:bg-[#4a3520] transition-all duration-200 shadow-md text-sm md:text-base"
                   >
                     Continue →
                   </button>
