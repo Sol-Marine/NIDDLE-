@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const origin = new URL(request.url).origin;
+    const redirectUri = `${origin}/api/auth/google/callback`;
+
     const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -19,7 +22,7 @@ export async function GET(request: NextRequest) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: process.env.GOOGLE_REDIRECT_URI!,
+        redirect_uri: redirectUri,
         grant_type: "authorization_code",
       }),
     });
