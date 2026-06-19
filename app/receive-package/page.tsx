@@ -152,7 +152,8 @@ export default function ReceivePackagePage() {
 
           {tab === "register" ? (
             <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-              <div className="flex border-b border-gray-100 overflow-x-auto">
+              {/* Desktop tabs */}
+              <div className="hidden sm:flex border-b border-gray-100">
                 {steps.map((s, i) => (
                   <button
                     key={s.label}
@@ -168,8 +169,7 @@ export default function ReceivePackagePage() {
                           : "text-gray-400"
                     }`}
                   >
-                    <span className="hidden sm:inline">{s.emoji} </span>
-                    {s.label}
+                    <span>{s.emoji} {s.label}</span>
                     {i < step && (
                       <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-1 bg-[#D4A24C] rounded-full" />
                     )}
@@ -178,6 +178,27 @@ export default function ReceivePackagePage() {
                     )}
                   </button>
                 ))}
+              </div>
+
+              {/* Mobile step indicator */}
+              <div className="sm:hidden border-b border-gray-100 px-4 py-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{steps[step].emoji}</span>
+                    <span className="text-sm font-bold text-[#5A432C]">{steps[step].label}</span>
+                  </div>
+                  <span className="text-xs font-semibold text-gray-400">Step {step + 1}/{steps.length}</span>
+                </div>
+                <div className="flex gap-1.5 mt-2">
+                  {steps.map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-1 flex-1 rounded-full transition-all ${
+                        i < step ? "bg-[#D4A24C]" : i === step ? "bg-[#5A432C]" : "bg-gray-200"
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
 
               <div className="p-5 md:p-8 lg:p-12">
