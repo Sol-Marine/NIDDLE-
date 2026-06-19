@@ -67,6 +67,8 @@ export default function SendPackagePage() {
   const [instructions, setInstructions] = useState("");
 
   const [trackingId, setTrackingId] = useState("");
+  const [booking, setBooking] = useState(false);
+  const [bookError, setBookError] = useState("");
 
   const nextStep = () => {
     if (step < 4) setStep(step + 1);
@@ -100,38 +102,46 @@ export default function SendPackagePage() {
   const estimatedPrice = calculatePrice();
 
   const handleBookDelivery = async () => {
-    const id = generateTrackingId();
-    setTrackingId(id);
-    const riderName = selectedRider
-      ? riders.find((r) => r.id === selectedRider)?.name || "Auto-assigned"
-      : "Auto-assigned";
+    setBooking(true);
+    setBookError("");
+    try {
+      const id = generateTrackingId();
+      setTrackingId(id);
+      const riderName = selectedRider
+        ? riders.find((r) => r.id === selectedRider)?.name || "Auto-assigned"
+        : "Auto-assigned";
 
-    const order: DeliveryOrder = {
-      id,
-      senderName: senderName || "Anonymous",
-      senderPhone: senderPhone || "N/A",
-      recipientName: recipientName || "Not specified",
-      recipientPhone: recipientPhone || "N/A",
-      pickupAddress: pickupAddress || "Not specified",
-      deliveryAddress: deliveryAddress || "Not specified",
-      packageType: packageType || "Other",
-      packageSize: size || "Medium",
-      handling: handling || "None",
-      description: description || "No description",
-      weight: weight || "N/A",
-      value: value || "0",
-      specialInstructions: instructions || "None",
-      riderName,
-      timeSlot: selectedTime || "Flexible",
-      price: estimatedPrice,
-      originalPrice: estimatedPrice,
-      negotiationStatus: "pending",
-      status: "order-placed",
-      createdAt: new Date().toLocaleString(),
-    };
+      const order: DeliveryOrder = {
+        id,
+        senderName: senderName || "Anonymous",
+        senderPhone: senderPhone || "N/A",
+        recipientName: recipientName || "Not specified",
+        recipientPhone: recipientPhone || "N/A",
+        pickupAddress: pickupAddress || "Not specified",
+        deliveryAddress: deliveryAddress || "Not specified",
+        packageType: packageType || "Other",
+        packageSize: size || "Medium",
+        handling: handling || "None",
+        description: description || "No description",
+        weight: weight || "N/A",
+        value: value || "0",
+        specialInstructions: instructions || "None",
+        riderName,
+        timeSlot: selectedTime || "Flexible",
+        price: estimatedPrice,
+        originalPrice: estimatedPrice,
+        negotiationStatus: "pending",
+        status: "order-placed",
+        createdAt: new Date().toLocaleString(),
+      };
 
-    await saveDelivery(order);
-    nextStep();
+      await saveDelivery(order);
+      nextStep();
+    } catch (err) {
+      setBookError("Something went wrong. Please try again.");
+    } finally {
+      setBooking(false);
+    }
   };
 
   return (
@@ -533,10 +543,14 @@ export default function SendPackagePage() {
 
                   <button
                     onClick={handleBookDelivery}
-                    className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
+                    disabled={booking}
+                    className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-base md:text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                   >
-                    Book Delivery — ₦{estimatedPrice.toLocaleString()}
+                    {booking ? "Booking..." : `Book Delivery — ₦${estimatedPrice.toLocaleString()}`}
                   </button>
+                  {bookError && (
+                    <p className="text-red-500 text-sm text-center mt-2">{bookError}</p>
+                  )}
                 </div>
               )}
 
