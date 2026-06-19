@@ -50,6 +50,8 @@ export default function ReceivePackagePage() {
 
   const [requestRef, setRequestRef] = useState("");
   const [savedRequest, setSavedRequest] = useState<ReceiveRequest | null>(null);
+  const [confirming, setConfirming] = useState(false);
+  const [confirmError, setConfirmError] = useState("");
   const [phoneLookup, setPhoneLookup] = useState("");
   const [lookedUp, setLookedUp] = useState(false);
   const [foundPackages, setFoundPackages] = useState<DeliveryOrder[]>([]);
@@ -72,25 +74,33 @@ export default function ReceivePackagePage() {
   ];
 
   const handleConfirm = async () => {
-    const id = generateRequestId();
-    const req: ReceiveRequest = {
-      id,
-      packageType: packageType || "Other",
-      description: description || "No description",
-      deliveryPref: deliveryPref || "Standard",
-      instructions: instructions || "None",
-      fullName: fullName || "Anonymous",
-      phone: phone || "N/A",
-      deliveryAddress: deliveryAddress || "Not specified",
-      preferredTime: preferredTime || "Flexible",
-      notes: notes || "None",
-      createdAt: new Date().toLocaleString(),
-      status: "pending",
-    };
-    await saveReceiveRequest(req);
-    setRequestRef(id);
-    setSavedRequest(req);
-    nextStep();
+    setConfirming(true);
+    setConfirmError("");
+    try {
+      const id = generateRequestId();
+      const req: ReceiveRequest = {
+        id,
+        packageType: packageType || "Other",
+        description: description || "No description",
+        deliveryPref: deliveryPref || "Standard",
+        instructions: instructions || "None",
+        fullName: fullName || "Anonymous",
+        phone: phone || "N/A",
+        deliveryAddress: deliveryAddress || "Not specified",
+        preferredTime: preferredTime || "Flexible",
+        notes: notes || "None",
+        createdAt: new Date().toLocaleString(),
+        status: "pending",
+      };
+      await saveReceiveRequest(req);
+      setRequestRef(id);
+      setSavedRequest(req);
+      nextStep();
+    } catch (err) {
+      setConfirmError("Something went wrong. Please try again.");
+    } finally {
+      setConfirming(false);
+    }
   };
 
   const handleCheckAlerts = async () => {
@@ -393,10 +403,14 @@ export default function ReceivePackagePage() {
                     </div>
                     <button
                       onClick={handleConfirm}
-                      className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
+                      disabled={confirming}
+                      className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                      Confirm Request →
+                      {confirming ? "Confirming..." : "Confirm Request →"}
                     </button>
+                    {confirmError && (
+                      <p className="text-red-500 text-sm text-center mt-2">{confirmError}</p>
+                    )}
                   </div>
                 )}
 

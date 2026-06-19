@@ -39,6 +39,7 @@ export async function saveDelivery(order: DeliveryOrder): Promise<DeliveryOrder>
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(order),
   });
+  if (!res.ok) throw new Error(`Failed to save delivery: ${res.status}`);
   return res.json();
 }
 
@@ -98,6 +99,7 @@ export async function saveReceiveRequest(req: ReceiveRequest): Promise<ReceiveRe
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(req),
   });
+  if (!res.ok) throw new Error(`Failed to save request: ${res.status}`);
   return res.json();
 }
 
