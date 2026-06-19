@@ -1,9 +1,0 @@
-▲ Next.js 16.2.9 (Turbopack)
-- Local:         http://localhost:3000
-- Network:       http://192.168.1.16:3000
-- Environments: .env.local
-✓ Ready in 425ms
-
- POST /api/deliveries 201 in 348ms (next.js: 323ms, application-code: 25ms)
- POST /api/receive-requests 201 in 72ms (next.js: 65ms, application-code: 7ms)
-  Reload env: .env.local
