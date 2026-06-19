@@ -111,13 +111,13 @@ export default function ReceivePackagePage() {
     <main className="min-h-screen bg-[#faf7f2] text-gray-900">
       <Navbar />
 
-      <section className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-20">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <span className="text-sm font-semibold text-[#D4A24C] uppercase tracking-widest">
+      <section className="bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-10 md:py-20">
+        <div className="max-w-5xl mx-auto px-4 md:px-6">
+          <div className="text-center mb-6 md:mb-12">
+            <span className="text-xs md:text-sm font-semibold text-[#D4A24C] uppercase tracking-widest">
               Receive Something
             </span>
-            <h1 className="text-5xl font-extrabold mt-3 mb-4">Receive a Package</h1>
+            <h1 className="text-3xl md:text-5xl font-extrabold mt-3 mb-4">Receive a Package</h1>
             <p className="text-gray-600 max-w-xl mx-auto">
               Register an incoming package or check if someone is sending something to you.
             </p>
@@ -126,7 +126,7 @@ export default function ReceivePackagePage() {
           <div className="flex gap-2 mb-8 max-w-md mx-auto">
             <button
               onClick={() => setTab("register")}
-              className={`flex-1 py-4 rounded-2xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 md:py-4 rounded-2xl font-semibold text-sm transition-all duration-200 ${
                 tab === "register"
                   ? "bg-[#5A432C] text-white shadow-lg"
                   : "bg-white text-gray-600 border border-gray-200"
@@ -140,7 +140,7 @@ export default function ReceivePackagePage() {
                 setLookedUp(false);
                 setPhoneLookup("");
               }}
-              className={`flex-1 py-4 rounded-2xl font-semibold text-sm transition-all duration-200 ${
+              className={`flex-1 py-3 md:py-4 rounded-2xl font-semibold text-sm transition-all duration-200 ${
                 tab === "alerts"
                   ? "bg-[#5A432C] text-white shadow-lg"
                   : "bg-white text-gray-600 border border-gray-200"
@@ -152,7 +152,7 @@ export default function ReceivePackagePage() {
 
           {tab === "register" ? (
             <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
-              <div className="flex border-b border-gray-100">
+              <div className="flex border-b border-gray-100 overflow-x-auto">
                 {steps.map((s, i) => (
                   <button
                     key={s.label}
@@ -180,7 +180,7 @@ export default function ReceivePackagePage() {
                 ))}
               </div>
 
-              <div className="p-8 md:p-12">
+              <div className="p-5 md:p-8 lg:p-12">
                 {step === 0 && (
                   <div className="space-y-8">
                     <div>
@@ -193,19 +193,19 @@ export default function ReceivePackagePage() {
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
                         Package Type
                       </label>
-                      <div className="grid grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                         {packageTypes.map((t) => (
                           <button
                             key={t.value}
                             type="button"
                             onClick={() => setPackageType(t.value)}
-                            className={`flex flex-col items-center gap-2 p-5 rounded-2xl border-2 transition-all duration-200 ${
+                            className={`flex flex-col items-center gap-2 p-3 sm:p-5 rounded-2xl border-2 transition-all duration-200 ${
                               packageType === t.value
                                 ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                                 : "border-gray-100 bg-white hover:border-gray-200"
                             }`}
                           >
-                            <span className="text-3xl">{t.icon}</span>
+                            <span className="text-2xl sm:text-3xl">{t.icon}</span>
                             <span className="text-sm font-medium">{t.value}</span>
                           </button>
                         ))}
@@ -221,7 +221,7 @@ export default function ReceivePackagePage() {
                         onChange={(e) => setDescription(e.target.value)}
                         rows={4}
                         placeholder="Tell us everything you know — is it a package from a loved one? An important document? Groceries for the week? Electronics? The more details you share, the smoother the delivery."
-                        className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
+                        className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
                       />
                     </div>
                     <div>
@@ -257,7 +257,7 @@ export default function ReceivePackagePage() {
                         onChange={(e) => setInstructions(e.target.value)}
                         rows={3}
                         placeholder="Call when you arrive. Ring the bell twice. Use the side gate. Don't leave in the sun..."
-                        className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
+                        className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -283,7 +283,7 @@ export default function ReceivePackagePage() {
                             value={fullName}
                             onChange={(e) => setFullName(e.target.value)}
                             placeholder="Your name"
-                            className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                            className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -298,7 +298,7 @@ export default function ReceivePackagePage() {
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
                             placeholder="+234 800 000 0000"
-                            className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                            className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                           />
                         </div>
                       </div>
@@ -314,7 +314,7 @@ export default function ReceivePackagePage() {
                           value={deliveryAddress}
                           onChange={(e) => setDeliveryAddress(e.target.value)}
                           placeholder="Your full delivery address in Lagos"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -348,7 +348,7 @@ export default function ReceivePackagePage() {
                         onChange={(e) => setNotes(e.target.value)}
                         rows={3}
                         placeholder="Let us know if there are specific times that work best, access details to your building, or any special requests..."
-                        className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
+                        className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
                       />
                     </div>
                   </div>
@@ -372,7 +372,7 @@ export default function ReceivePackagePage() {
                     </div>
                     <button
                       onClick={handleConfirm}
-                      className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-5 rounded-2xl text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
+                      className="w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 md:py-5 rounded-2xl text-lg font-bold hover:shadow-xl hover:scale-[1.02] transition-all duration-300 active:scale-[0.98] shadow-lg"
                     >
                       Confirm Request →
                     </button>
@@ -391,7 +391,7 @@ export default function ReceivePackagePage() {
                       </p>
                     </div>
 
-                    <div className="bg-[#1a1a2e] rounded-3xl p-8 text-white">
+                    <div className="bg-[#1a1a2e] rounded-3xl p-5 md:p-8 text-white">
                       <div className="text-center mb-6">
                         <p className="text-sm text-gray-400 uppercase tracking-wider mb-1">Reference ID</p>
                         <p className="text-3xl font-extrabold tracking-wider text-[#D4A24C]">{requestRef}</p>
@@ -429,11 +429,11 @@ export default function ReceivePackagePage() {
                   </div>
                 )}
 
-                <div className="flex justify-between mt-10 pt-8 border-t border-gray-100">
+                <div className="flex justify-between mt-6 pt-6 md:mt-10 md:pt-8 border-t border-gray-100">
                   <button
                     onClick={prevStep}
                     disabled={step === 0}
-                    className={`px-8 py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
+                    className={`px-4 sm:px-8 py-3 sm:py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
                       step === 0
                         ? "text-gray-300 cursor-not-allowed"
                         : "border-2 border-gray-200 text-gray-700 hover:border-gray-400"
@@ -458,7 +458,7 @@ export default function ReceivePackagePage() {
                   {step < 2 ? (
                     <button
                       onClick={nextStep}
-                      className="bg-[#5A432C] text-white px-10 py-3.5 rounded-2xl font-semibold hover:bg-[#4a3520] transition-all duration-200 shadow-md"
+                      className="bg-[#5A432C] text-white px-6 sm:px-10 py-3 sm:py-3.5 rounded-2xl font-semibold hover:bg-[#4a3520] transition-all duration-200 shadow-md"
                     >
                       Continue →
                     </button>
@@ -466,7 +466,7 @@ export default function ReceivePackagePage() {
                     <div />
                   ) : (
                     <Link href={`/pricing?ref=${requestRef}`}>
-                      <button className="bg-[#D4A24C] text-[#1a1a2e] px-10 py-3.5 rounded-2xl font-bold hover:shadow-lg transition-all duration-200">
+                      <button className="bg-[#D4A24C] text-[#1a1a2e] px-6 sm:px-10 py-3 sm:py-3.5 rounded-2xl font-bold hover:shadow-lg transition-all duration-200">
                         Get a Quote →
                       </button>
                     </Link>
@@ -475,7 +475,7 @@ export default function ReceivePackagePage() {
               </div>
             </div>
           ) : (
-            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden p-8 md:p-12">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden p-5 md:p-8 lg:p-12">
               {!lookedUp ? (
                 <div className="max-w-md mx-auto text-center space-y-8">
                   <div className="w-20 h-20 rounded-full bg-[#D4A24C]/10 flex items-center justify-center mx-auto">
@@ -500,7 +500,7 @@ export default function ReceivePackagePage() {
                         value={phoneLookup}
                         onChange={(e) => setPhoneLookup(e.target.value)}
                         placeholder="+234 800 000 0000"
-                        className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                        className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                       />
                     </div>
                   </div>

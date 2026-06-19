@@ -176,13 +176,13 @@ export default function SendPackagePage() {
                           key={t.value}
                           type="button"
                           onClick={() => setPackageType(t.value)}
-                          className={`flex flex-col items-center gap-2 p-5 rounded-2xl border-2 transition-all duration-200 ${
+                          className={`flex flex-col items-center gap-2 p-3 sm:p-5 rounded-2xl border-2 transition-all duration-200 ${
                             packageType === t.value
                               ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                               : "border-gray-100 bg-white hover:border-gray-200"
                           }`}
                         >
-                          <span className="text-3xl">{t.icon}</span>
+                          <span className="text-2xl sm:text-3xl">{t.icon}</span>
                           <span className="text-sm font-medium">{t.value}</span>
                         </button>
                       ))}
@@ -196,7 +196,7 @@ export default function SendPackagePage() {
                           key={s.label}
                           type="button"
                           onClick={() => setSize(s.label)}
-                          className={`p-5 rounded-2xl border-2 text-center transition-all duration-200 ${
+                          className={`p-3 sm:p-5 rounded-2xl border-2 text-center transition-all duration-200 ${
                             size === s.label
                               ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                               : "border-gray-100 bg-white hover:border-gray-200"
@@ -249,7 +249,7 @@ export default function SendPackagePage() {
                           value={senderName}
                           onChange={(e) => setSenderName(e.target.value)}
                           placeholder="John Doe"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -262,7 +262,7 @@ export default function SendPackagePage() {
                           value={senderPhone}
                           onChange={(e) => setSenderPhone(e.target.value)}
                           placeholder="+234 800 000 0000"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -277,7 +277,7 @@ export default function SendPackagePage() {
                       onChange={(e) => setDescription(e.target.value)}
                       rows={3}
                       placeholder="Tell us everything — is it a birthday gift? Documents? Groceries? Share the details so our rider knows exactly what to expect."
-                      className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
+                      className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
                     />
                   </div>
 
@@ -291,7 +291,7 @@ export default function SendPackagePage() {
                           value={weight}
                           onChange={(e) => setWeight(e.target.value)}
                           placeholder="e.g. 2kg"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -304,7 +304,7 @@ export default function SendPackagePage() {
                           value={value}
                           onChange={(e) => setValue(e.target.value)}
                           placeholder="e.g. 15000"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-10 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-8 sm:pl-10 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -319,7 +319,7 @@ export default function SendPackagePage() {
                       onChange={(e) => setInstructions(e.target.value)}
                       rows={2}
                       placeholder="Fragile — handle with care. Leave at the reception desk. Call before arrival..."
-                      className="w-full border-2 border-gray-100 rounded-2xl p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
+                      className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all resize-none"
                     />
                   </div>
                 </div>
@@ -343,7 +343,7 @@ export default function SendPackagePage() {
                           value={recipientName}
                           onChange={(e) => setRecipientName(e.target.value)}
                           placeholder="Recipient's name"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -356,7 +356,7 @@ export default function SendPackagePage() {
                           value={recipientPhone}
                           onChange={(e) => setRecipientPhone(e.target.value)}
                           placeholder="+234 800 000 0000"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -372,7 +372,7 @@ export default function SendPackagePage() {
                           value={pickupAddress}
                           onChange={(e) => setPickupAddress(e.target.value)}
                           placeholder="Enter pickup address"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -385,7 +385,7 @@ export default function SendPackagePage() {
                           value={deliveryAddress}
                           onChange={(e) => setDeliveryAddress(e.target.value)}
                           placeholder="Enter delivery address"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-4 pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 pl-10 sm:pl-12 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
                         />
                       </div>
                     </div>
@@ -556,7 +556,7 @@ export default function SendPackagePage() {
 
               {/* Navigation */}
               {step < 4 && (
-                <div className="flex justify-between mt-10 pt-8 border-t border-gray-100">
+                <div className="flex justify-between mt-6 pt-6 md:mt-10 md:pt-8 border-t border-gray-100">
                   <button
                     onClick={prevStep}
                     disabled={step === 0}
