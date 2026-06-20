@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { getUserByEmail, createUser } from "@/app/lib/db";
+import { signSession } from "@/app/lib/auth";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -45,24 +45,26 @@ export async function GET(request: NextRequest) {
 
     if (!user) {
       user = createUser({
-        id: "user-" + Date.now(),
+        id: "user-" + crypto.randomUUID(),
         name: googleUser.name || googleUser.email.split("@")[0],
         email: googleUser.email,
-        password: "",
+        password: "google-oauth-no-password",
         avatar: googleUser.picture || "",
         role: "staff",
-        createdAt: new Date().toLocaleString(),
+        createdAt: new Date().toISOString(),
       });
     }
 
-    const cookieStore = await cookies();
-    cookieStore.set("session", user.id, {
+    const response = NextResponse.redirect(new URL("/admin", request.url));
+    response.cookies.set("session", signSession(user.id), {
       httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
       path: "/",
       maxAge: 86400 * 7,
     });
 
-    return NextResponse.redirect(new URL("/admin", request.url));
+    return response;
   } catch {
     return NextResponse.redirect(new URL("/login?error=google_failed", request.url));
   }

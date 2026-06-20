@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
 import { getUserByEmail } from "@/app/lib/db";
-import { cookies } from "next/headers";
+import { setSessionCookie } from "@/app/lib/auth";
 
 export async function POST(request: NextRequest) {
   const { email, password } = await request.json();
@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
   if (!valid) {
     return Response.json({ error: "Invalid credentials" }, { status: 401 });
   }
-  const cookieStore = await cookies();
-  cookieStore.set("session", user.id, { httpOnly: true, path: "/", maxAge: 86400 * 7 });
+  await setSessionCookie(user.id);
   return Response.json({ id: user.id, name: user.name, email: user.email, role: user.role });
 }
