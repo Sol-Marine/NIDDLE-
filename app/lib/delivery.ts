@@ -16,6 +16,7 @@ export interface DeliveryOrder {
   value: string;
   specialInstructions: string;
   riderName: string;
+  riderId?: number;
   timeSlot: string;
   price: number;
   originalPrice?: number;

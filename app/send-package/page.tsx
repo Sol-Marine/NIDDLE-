@@ -127,6 +127,7 @@ export default function SendPackagePage() {
         value: value || "0",
         specialInstructions: instructions || "None",
         riderName,
+        riderId: selectedRider || undefined,
         timeSlot: selectedTime || "Flexible",
         price: estimatedPrice,
         originalPrice: estimatedPrice,

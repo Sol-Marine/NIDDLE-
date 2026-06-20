@@ -265,6 +265,7 @@ export default function TrackPage() {
                     <DeliveryMap
                       pickupAddress={delivery.pickupAddress}
                       deliveryAddress={delivery.deliveryAddress}
+                      riderId={delivery.riderId}
                     />
                   )}
                 </div>

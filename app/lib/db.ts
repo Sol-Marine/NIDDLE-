@@ -23,6 +23,7 @@ export interface DeliveryOrder {
   price: number;
   originalPrice?: number;
   negotiationStatus?: string;
+  riderId?: number;
   status: string;
   createdAt: string;
   deliveredAt?: string;
@@ -63,6 +64,17 @@ interface DbData {
   notifications: Notification[];
   addresses: SavedAddress[];
   payments: Payment[];
+  riderLocations: RiderLocation[];
+}
+
+export interface RiderLocation {
+  riderId: number;
+  riderName: string;
+  lat: number;
+  lng: number;
+  heading?: number;
+  speed?: number;
+  updatedAt: string;
 }
 
 function readDb(): DbData {
@@ -70,7 +82,7 @@ function readDb(): DbData {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
     return JSON.parse(raw);
   } catch {
-    return { deliveries: [], receiveRequests: [], riders: [], users: [], notifications: [], addresses: [], payments: [] };
+    return { deliveries: [], receiveRequests: [], riders: [], users: [], notifications: [], addresses: [], payments: [], riderLocations: [] };
   }
 }
 
@@ -140,6 +152,28 @@ export function updateReceiveRequest(id: string, updates: Partial<ReceiveRequest
 
 export function getRiders(): Rider[] {
   return readDb().riders;
+}
+
+/* ── Rider Locations ── */
+
+export function getRiderLocation(riderId: number): RiderLocation | undefined {
+  return readDb().riderLocations.find((l) => l.riderId === riderId);
+}
+
+export function getAllRiderLocations(): RiderLocation[] {
+  return readDb().riderLocations;
+}
+
+export function upsertRiderLocation(data: RiderLocation): RiderLocation {
+  const db = readDb();
+  const idx = db.riderLocations.findIndex((l) => l.riderId === data.riderId);
+  if (idx >= 0) {
+    db.riderLocations[idx] = data;
+  } else {
+    db.riderLocations.push(data);
+  }
+  writeDb(db);
+  return data;
 }
 
 /* ── Users ── */
