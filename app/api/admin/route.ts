@@ -1,13 +1,11 @@
 import { NextRequest } from "next/server";
-import { cookies } from "next/headers";
-import { getUserById, createNotification, getDeliveries, getReceiveRequests, getRiders, updateDelivery } from "@/app/lib/db";
+import { createNotification, getDeliveries, getReceiveRequests, getRiders, updateDelivery } from "@/app/lib/db";
+import { getSessionUser } from "@/app/lib/auth";
 
 export async function GET(request: NextRequest) {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("session");
-  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  const user = getUserById(session.value);
+  const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (user.role !== "admin") return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") || "overview";
@@ -32,11 +30,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  const session = cookieStore.get("session");
-  if (!session) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  const user = getUserById(session.value);
+  const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (user.role !== "admin") return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
   const { id, status, riderName } = body;
@@ -51,13 +47,13 @@ export async function POST(request: NextRequest) {
   if (!updated) return Response.json({ error: "Delivery not found" }, { status: 404 });
 
   createNotification({
-    id: "notif-" + Date.now(),
-    userId: session.value,
+    id: "notif-" + crypto.randomUUID(),
+    userId: user.id,
     title: "Delivery Updated",
     message: `${updated.id} is now "${status || riderName || "updated"}"`,
     link: `/track?id=${id}`,
     read: false,
-    createdAt: new Date().toLocaleString(),
+    createdAt: new Date().toISOString(),
   });
 
   return Response.json(updated);

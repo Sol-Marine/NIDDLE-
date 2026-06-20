@@ -21,6 +21,7 @@ function LoginInner() {
   const [name, setName] = useState("");
   const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
+  const [verifyToken, setVerifyToken] = useState("");
 
   useEffect(() => {
     const err = searchParams.get("error");
@@ -45,9 +46,13 @@ function LoginInner() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
+    const data = await res.json();
     if (!res.ok) {
-      const data = await res.json();
       setError(data.error || "Something went wrong");
+      return;
+    }
+    if (isRegister && data.ok) {
+      setVerifyToken(data.verifyToken);
       return;
     }
     router.push("/admin");
@@ -118,6 +123,28 @@ function LoginInner() {
             <p className="text-gray-500 text-sm mt-1">Fast Bicycle Delivery</p>
           </div>
 
+          {verifyToken ? (
+            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                <span className="text-3xl">✅</span>
+              </div>
+              <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Account created!</h1>
+              <p className="text-gray-500 text-sm mb-6">Check your email for the verification link.</p>
+              <a
+                href={`/verify-email?token=${verifyToken}`}
+                className="block w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                Verify Email Now →
+              </a>
+              <button
+                onClick={() => { setVerifyToken(""); setIsRegister(false); }}
+                className="block w-full mt-4 text-sm text-[#5A432C] font-semibold hover:underline"
+              >
+                Back to login
+              </button>
+            </div>
+          ) : (
+          <>
           <div className="mb-8">
             <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Sign in</h2>
             <p className="text-gray-500 text-sm">
@@ -231,6 +258,8 @@ function LoginInner() {
               {isRegister ? "Sign in" : "Create account"}
             </button>
           </p>
+          </>
+          )}
         </div>
       </div>
     </main>

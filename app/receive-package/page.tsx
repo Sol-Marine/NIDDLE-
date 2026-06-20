@@ -6,17 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { getDeliveriesByPhone, getReceiveRequestsByPhone, generateRequestId, saveReceiveRequest } from "../lib/delivery";
 import type { DeliveryOrder, ReceiveRequest } from "../lib/delivery";
-
-const packageTypes = [
-  { value: "Documents", icon: "📄" },
-  { value: "Food", icon: "🍱" },
-  { value: "Parcel", icon: "📦" },
-  { value: "Groceries", icon: "🛒" },
-  { value: "Gift", icon: "🎁" },
-  { value: "Electronics", icon: "💻" },
-  { value: "Clothing", icon: "👕" },
-  { value: "Other", icon: "📋" },
-];
+import { PACKAGE_TYPES, TIME_SLOTS } from "@/app/lib/constants";
 
 const deliveryOptions = [
   { label: "Leave at reception", icon: "🏢" },
@@ -24,15 +14,6 @@ const deliveryOptions = [
   { label: "Leave at my door", icon: "🚪" },
   { label: "Call on arrival", icon: "📞" },
   { label: "Neighbour can receive", icon: "🏠" },
-];
-
-const timeSlots = [
-  "8:00 AM - 10:00 AM",
-  "10:00 AM - 12:00 PM",
-  "12:00 PM - 2:00 PM",
-  "2:00 PM - 4:00 PM",
-  "4:00 PM - 6:00 PM",
-  "6:00 PM - 8:00 PM",
 ];
 
 export default function ReceivePackagePage() {
@@ -113,8 +94,11 @@ export default function ReceivePackagePage() {
   };
 
   const getTypeIcon = (type: string) => {
-    const found = packageTypes.find((t) => t.value === type);
-    return found ? found.icon : "📦";
+    const iconMap: Record<string, string> = {
+      Documents: "📄", Food: "🍱", Parcel: "📦", Groceries: "🛒",
+      Gift: "🎁", Electronics: "💻", Clothing: "👕", Other: "📋",
+    };
+    return iconMap[type] || "📦";
   };
 
   return (
@@ -225,19 +209,19 @@ export default function ReceivePackagePage() {
                         Package Type
                       </label>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        {packageTypes.map((t) => (
+                        {PACKAGE_TYPES.map((t) => (
                           <button
-                            key={t.value}
+                            key={t}
                             type="button"
-                            onClick={() => setPackageType(t.value)}
+                            onClick={() => setPackageType(t)}
                             className={`flex flex-col items-center gap-2 p-3 sm:p-5 rounded-2xl border-2 transition-all duration-200 ${
-                              packageType === t.value
+                              packageType === t
                                 ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                                 : "border-gray-100 bg-white hover:border-gray-200"
                             }`}
                           >
-                            <span className="text-2xl sm:text-3xl">{t.icon}</span>
-                            <span className="text-sm font-medium">{t.value}</span>
+                            <span className="text-2xl sm:text-3xl">{getTypeIcon(t)}</span>
+                            <span className="text-sm font-medium">{t}</span>
                           </button>
                         ))}
                       </div>
@@ -354,7 +338,7 @@ export default function ReceivePackagePage() {
                         Preferred Delivery Time
                       </label>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        {timeSlots.map((slot) => (
+                        {TIME_SLOTS.map((slot) => (
                           <button
                             key={slot}
                             type="button"

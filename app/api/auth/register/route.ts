@@ -1,9 +1,17 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { createUser, getUserByEmail } from "@/app/lib/db";
-import { setSessionCookie } from "@/app/lib/auth";
+import { rateLimit } from "@/app/lib/rate-limit";
+
+const verifyTokens = new Map<string, { email: string; expiresAt: number }>();
 
 export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
+  if (!rateLimit(`register:${ip}`, 3, 60_000)) {
+    return Response.json({ error: "Too many attempts. Try again in 1 minute." }, { status: 429 });
+  }
+
   const { name, email, password } = await request.json();
   if (!email || !password) {
     return Response.json({ error: "Email and password required" }, { status: 400 });
@@ -16,14 +24,19 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Email already registered" }, { status: 409 });
   }
   const hashed = await bcrypt.hash(password, 10);
+  const verifyToken = crypto.randomBytes(32).toString("hex");
   const user = createUser({
     id: "user-" + crypto.randomUUID(),
     name: name || email.split("@")[0],
     email,
     password: hashed,
     role: "staff",
+    emailVerified: false,
+    emailVerifyToken: verifyToken,
     createdAt: new Date().toISOString(),
   });
-  await setSessionCookie(user.id);
-  return Response.json({ id: user.id, name: user.name, email: user.email, role: user.role }, { status: 201 });
+  verifyTokens.set(verifyToken, { email, expiresAt: Date.now() + 86400_000 });
+  return Response.json({ ok: true, verifyToken }, { status: 201 });
 }
+
+export { verifyTokens };

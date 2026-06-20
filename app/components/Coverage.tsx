@@ -1,9 +1,5 @@
 import Image from "next/image";
-
-const lagosZones = [
-  "Ikeja", "Victoria Island", "Lekki", "Surulere",
-  "Yaba", "Ikoyi", "GRA", "Oshodi",
-];
+import { LAGOS_ZONES } from "@/app/lib/constants";
 
 export default function Coverage() {
   return (
@@ -45,7 +41,7 @@ export default function Coverage() {
           </div>
 
           <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {lagosZones.map((zone, i) => (
+            {LAGOS_ZONES.map((zone, i) => (
               <div
                 key={zone}
                 className="bg-white rounded-2xl p-5 shadow-lg border border-gray-100 hover:border-[#D4A24C]/40 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group"

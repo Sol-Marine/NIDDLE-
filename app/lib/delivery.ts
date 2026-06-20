@@ -1,32 +1,8 @@
-const API = "";
+import type { DeliveryOrder, ReceiveRequest } from "./db";
 
-export interface DeliveryOrder {
-  id: string;
-  senderName: string;
-  senderPhone: string;
-  recipientName: string;
-  recipientPhone: string;
-  pickupAddress: string;
-  deliveryAddress: string;
-  packageType: string;
-  packageSize: string;
-  handling: string;
-  description: string;
-  weight: string;
-  value: string;
-  specialInstructions: string;
-  riderName: string;
-  riderId?: number;
-  timeSlot: string;
-  price: number;
-  originalPrice?: number;
-  negotiationStatus?: string;
-  status: string;
-  createdAt: string;
-  deliveredAt?: string;
-  receivedBy?: string;
-  proofNote?: string;
-}
+export type { DeliveryOrder, ReceiveRequest };
+
+const API = "";
 
 export function generateTrackingId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -71,22 +47,6 @@ export async function updateDelivery(id: string, updates: Partial<DeliveryOrder>
 }
 
 /* ── Receive Requests ── */
-
-export interface ReceiveRequest {
-  id: string;
-  packageType: string;
-  description: string;
-  deliveryPref: string;
-  instructions: string;
-  fullName: string;
-  phone: string;
-  deliveryAddress: string;
-  preferredTime: string;
-  notes: string;
-  createdAt: string;
-  negotiatedPrice?: number;
-  status: string;
-}
 
 export function generateRequestId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { STATUS_COLORS } from "@/app/lib/constants";
 
 interface UserProfile {
   id: string;
@@ -59,14 +60,6 @@ interface Payment {
   status: string;
   createdAt: string;
 }
-
-const statusColors: Record<string, string> = {
-  "order-placed": "bg-blue-100 text-blue-700",
-  "picked-up": "bg-yellow-100 text-yellow-700",
-  "in-transit": "bg-orange-100 text-orange-700",
-  "out-for-delivery": "bg-purple-100 text-purple-700",
-  delivered: "bg-green-100 text-green-700",
-};
 
 const tabs = [
   { key: "profile", label: "Profile", icon: "👤" },
@@ -337,7 +330,7 @@ export default function ProfilePage() {
                     <p className="text-xs text-gray-400 mt-1">{d.createdAt}</p>
                   </div>
                   <div className="text-right">
-                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[d.status] || "bg-gray-100"}`}>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100"}`}>
                       {d.status.replace(/-/g, " ")}
                     </span>
                     <p className="text-sm font-bold mt-2">₦{d.price.toLocaleString()}</p>

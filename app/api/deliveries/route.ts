@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getDeliveries, getDeliveriesByPhone, createDelivery } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth";
+import { rateLimit } from "@/app/lib/rate-limit";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -12,6 +13,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
+  if (!rateLimit(`delivery:${user.id}`, 10, 60_000)) {
+    return Response.json({ error: "Too many deliveries. Slow down." }, { status: 429 });
+  }
 
   const body = await request.json();
 

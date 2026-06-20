@@ -65,6 +65,17 @@ interface DbData {
   addresses: SavedAddress[];
   payments: Payment[];
   riderLocations: RiderLocation[];
+  contactMessages: ContactMessage[];
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
 }
 
 export interface RiderLocation {
@@ -77,17 +88,28 @@ export interface RiderLocation {
   updatedAt: string;
 }
 
+let dbCache: DbData | null = null;
+let dbCacheTime = 0;
+const DB_CACHE_TTL = 1000;
+
 function readDb(): DbData {
+  const now = Date.now();
+  if (dbCache && now - dbCacheTime < DB_CACHE_TTL) return dbCache;
   try {
     const raw = fs.readFileSync(DB_PATH, "utf-8");
-    return JSON.parse(raw);
+    const parsed: DbData = JSON.parse(raw);
+    dbCache = parsed;
+    dbCacheTime = now;
+    return parsed;
   } catch {
-    return { deliveries: [], receiveRequests: [], riders: [], users: [], notifications: [], addresses: [], payments: [], riderLocations: [] };
+    return { deliveries: [], receiveRequests: [], riders: [], users: [], notifications: [], addresses: [], payments: [], riderLocations: [], contactMessages: [] };
   }
 }
 
 function writeDb(data: DbData): void {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), "utf-8");
+  dbCache = data;
+  dbCacheTime = Date.now();
 }
 
 export function getDeliveries(): DeliveryOrder[] {
@@ -186,6 +208,8 @@ export interface User {
   phone?: string;
   avatar?: string;
   role: "admin" | "staff";
+  emailVerified?: boolean;
+  emailVerifyToken?: string;
   createdAt: string;
   notifSettings?: { email: boolean; sms: boolean; push: boolean };
 }
@@ -319,4 +343,17 @@ export function createPayment(data: Payment): Payment {
   db.payments.unshift(data);
   writeDb(db);
   return data;
+}
+
+/* ── Contact Messages ── */
+
+export function createContactMessage(data: ContactMessage): ContactMessage {
+  const db = readDb();
+  db.contactMessages.unshift(data);
+  writeDb(db);
+  return data;
+}
+
+export function getContactMessages(): ContactMessage[] {
+  return readDb().contactMessages;
 }

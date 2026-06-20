@@ -10,15 +10,35 @@ export default function ContactPage() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
-    setName("");
-    setEmail("");
-    setSubject("");
-    setMessage("");
-    setTimeout(() => setSent(false), 4000);
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, subject, message }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || "Failed to send message");
+        return;
+      }
+      setSent(true);
+      setName("");
+      setEmail("");
+      setSubject("");
+      setMessage("");
+      setTimeout(() => setSent(false), 4000);
+    } catch {
+      setError("Network error. Please try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -195,11 +215,16 @@ export default function ContactPage() {
                       </div>
                     </div>
 
+                    {error && (
+                      <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl p-4">{error}</div>
+                    )}
+
                     <button
                       type="submit"
-                      className="w-full bg-gradient-to-r from-[#5A432C] to-[#4a3520] text-white py-4 rounded-2xl font-bold text-base shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
+                      disabled={sending}
+                      className="w-full bg-gradient-to-r from-[#5A432C] to-[#4a3520] text-white py-4 rounded-2xl font-bold text-base shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
                     >
-                      Send Message →
+                      {sending ? "Sending..." : "Send Message →"}
                     </button>
                   </form>
                 </>

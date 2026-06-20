@@ -7,24 +7,9 @@ import Footer from "../components/Footer";
 import { getDeliveryById, updateDelivery } from "../lib/delivery";
 import type { DeliveryOrder } from "../lib/delivery";
 import dynamic from "next/dynamic";
+import { STATUS_STEPS, STATUS_LABELS } from "@/app/lib/constants";
 
 const DeliveryMap = dynamic(() => import("../components/DeliveryMap"), { ssr: false });
-
-const statusSteps: { label: string; icon: string; key: DeliveryOrder["status"] }[] = [
-  { label: "Order Placed", icon: "📋", key: "order-placed" },
-  { label: "Picked Up", icon: "📦", key: "picked-up" },
-  { label: "In Transit", icon: "🚴", key: "in-transit" },
-  { label: "Out for Delivery", icon: "📍", key: "out-for-delivery" },
-  { label: "Delivered", icon: "✅", key: "delivered" },
-];
-
-const statusLabels: Record<string, string> = {
-  "order-placed": "Order Placed",
-  "picked-up": "Picked Up",
-  "in-transit": "In Transit",
-  "out-for-delivery": "Out for Delivery",
-  delivered: "Delivered",
-};
 
 export default function TrackPage() {
   const [trackingId, setTrackingId] = useState("");
@@ -49,7 +34,7 @@ export default function TrackPage() {
   }, []);
 
   const activeStep = delivery
-    ? statusSteps.findIndex((s) => s.key === delivery.status)
+    ? STATUS_STEPS.findIndex((s) => s.key === delivery.status)
     : -1;
 
   const handleTrack = async (e: React.FormEvent) => {
@@ -189,7 +174,7 @@ export default function TrackPage() {
                             : "bg-green-500 animate-pulse"
                         }`}
                       />
-                      {statusLabels[delivery.status] || delivery.status}
+                      {STATUS_LABELS[delivery.status] || delivery.status}
                     </span>
                   </div>
                 </div>
@@ -200,9 +185,9 @@ export default function TrackPage() {
                 <div className="md:col-span-3">
                   <h3 className="font-bold text-lg mb-8">Delivery Timeline</h3>
                   <div className="space-y-0">
-                    {statusSteps.map((step, i) => {
+                    {STATUS_STEPS.map((step, i) => {
                       const isActive = i <= activeStep;
-                      const isLast = i === statusSteps.length - 1;
+                      const isLast = i === STATUS_STEPS.length - 1;
                       return (
                         <div key={step.label} className="flex gap-5">
                           <div className="flex flex-col items-center">

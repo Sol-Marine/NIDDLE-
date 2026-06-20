@@ -6,47 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { generateTrackingId, saveDelivery } from "../lib/delivery";
 import type { DeliveryOrder } from "../lib/delivery";
-
-const packageTypes = [
-  { value: "Documents", icon: "📄" },
-  { value: "Food", icon: "🍱" },
-  { value: "Parcel", icon: "📦" },
-  { value: "Groceries", icon: "🛒" },
-  { value: "Gift", icon: "🎁" },
-  { value: "Electronics", icon: "💻" },
-  { value: "Clothing", icon: "👕" },
-  { value: "Other", icon: "📋" },
-];
-
-const sizes = [
-  { label: "Small", icon: "📦", desc: "Envelope or small box" },
-  { label: "Medium", icon: "📦📦", desc: "Bag or medium box" },
-  { label: "Large", icon: "📦📦📦", desc: "Large box or multiple items" },
-];
-
-const specialHandling = [
-  { label: "Fragile", icon: "🥚" },
-  { label: "Perishable", icon: "🧊" },
-  { label: "Valuable", icon: "💎" },
-  { label: "Urgent", icon: "⚡" },
-  { label: "None", icon: "✅" },
-];
-
-const riders = [
-  { id: 1, name: "Chidi O.", rating: 4.9, rides: 342, badge: "Top Rider" },
-  { id: 2, name: "Amara K.", rating: 4.8, rides: 287, badge: "Fast" },
-  { id: 3, name: "Femi A.", rating: 4.7, rides: 198, badge: "Eco" },
-  { id: 4, name: "Zainab B.", rating: 4.9, rides: 415, badge: "Top Rider" },
-];
-
-const timeSlots = [
-  "8:00 AM - 10:00 AM",
-  "10:00 AM - 12:00 PM",
-  "12:00 PM - 2:00 PM",
-  "2:00 PM - 4:00 PM",
-  "4:00 PM - 6:00 PM",
-  "6:00 PM - 8:00 PM",
-];
+import { RIDERS, PACKAGE_TYPES, SIZES, TIME_SLOTS, SPECIAL_HANDLING, BASE_PRICES } from "@/app/lib/constants";
 
 export default function SendPackagePage() {
   const [step, setStep] = useState(0);
@@ -88,13 +48,9 @@ export default function SendPackagePage() {
   ];
 
   const calculatePrice = () => {
-    let base = 2000;
-    if (size === "Medium") base = 3500;
-    if (size === "Large") base = 5000;
-    if (handling === "Fragile") base += 500;
-    if (handling === "Perishable") base += 800;
-    if (handling === "Valuable") base += 1000;
-    if (handling === "Urgent") base += 1500;
+    let base = BASE_PRICES[size as keyof typeof BASE_PRICES] || 2000;
+    const handlingFee = SPECIAL_HANDLING.find((h) => h.label === handling)?.fee || 0;
+    base += handlingFee;
     if (selectedTime?.includes("Express") || selectedTime?.includes("Priority")) base += 2000;
     return base;
   };
@@ -108,7 +64,7 @@ export default function SendPackagePage() {
       const id = generateTrackingId();
       setTrackingId(id);
       const riderName = selectedRider
-        ? riders.find((r) => r.id === selectedRider)?.name || "Auto-assigned"
+        ? RIDERS.find((r) => r.id === selectedRider)?.name || "Auto-assigned"
         : "Auto-assigned";
 
       const order: DeliveryOrder = {
@@ -219,19 +175,19 @@ export default function SendPackagePage() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Package Type</label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {packageTypes.map((t) => (
+                      {PACKAGE_TYPES.map((t) => (
                         <button
-                          key={t.value}
+                          key={t}
                           type="button"
-                          onClick={() => setPackageType(t.value)}
+                          onClick={() => setPackageType(t)}
                           className={`flex flex-col items-center gap-2 p-3 sm:p-5 rounded-2xl border-2 transition-all duration-200 ${
-                            packageType === t.value
+                            packageType === t
                               ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                               : "border-gray-100 bg-white hover:border-gray-200"
                           }`}
                         >
-                          <span className="text-2xl sm:text-3xl">{t.icon}</span>
-                          <span className="text-sm font-medium">{t.value}</span>
+                          <span className="text-2xl sm:text-3xl">📦</span>
+                          <span className="text-sm font-medium">{t}</span>
                         </button>
                       ))}
                     </div>
@@ -239,7 +195,7 @@ export default function SendPackagePage() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Package Size</label>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      {sizes.map((s) => (
+                      {SIZES.map((s) => (
                         <button
                           key={s.label}
                           type="button"
@@ -260,7 +216,7 @@ export default function SendPackagePage() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Special Handling</label>
                     <div className="flex flex-wrap gap-3">
-                      {specialHandling.map((h) => (
+                      {SPECIAL_HANDLING.map((h) => (
                         <button
                           key={h.label}
                           type="button"
@@ -271,7 +227,7 @@ export default function SendPackagePage() {
                               : "border-gray-100 bg-white hover:border-gray-200"
                           }`}
                         >
-                          <span>{h.icon}</span> {h.label}
+                          {h.label}
                         </button>
                       ))}
                     </div>
@@ -440,7 +396,7 @@ export default function SendPackagePage() {
                   </div>
 
                   <div className="grid md:grid-cols-2 gap-3">
-                    {riders.map((rider) => (
+                    {RIDERS.map((rider) => (
                       <button
                         key={rider.id}
                         type="button"
@@ -482,7 +438,7 @@ export default function SendPackagePage() {
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Preferred Time Window</label>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {timeSlots.map((slot) => (
+                      {TIME_SLOTS.map((slot) => (
                         <button
                           key={slot}
                           type="button"
@@ -525,7 +481,7 @@ export default function SendPackagePage() {
                     <SummaryCard
                       emoji="🚴"
                       label="Rider"
-                      value={selectedRider ? riders.find((r) => r.id === selectedRider)?.name || "Selected" : "Auto-assign"}
+                      value={selectedRider ? RIDERS.find((r) => r.id === selectedRider)?.name || "Selected" : "Auto-assign"}
                     />
                   </div>
 
@@ -578,7 +534,7 @@ export default function SendPackagePage() {
                       <ReceiptRow label="Package" value={`${packageType} · ${size}`} />
                       <ReceiptRow label="Pickup" value={pickupAddress || "Not set"} />
                       <ReceiptRow label="Delivery" value={deliveryAddress || "Not set"} />
-                      <ReceiptRow label="Rider" value={selectedRider ? riders.find((r) => r.id === selectedRider)?.name || "Auto-assign" : "Auto-assign"} />
+                      <ReceiptRow label="Rider" value={selectedRider ? RIDERS.find((r) => r.id === selectedRider)?.name || "Auto-assign" : "Auto-assign"} />
                       <ReceiptRow label="Time Slot" value={selectedTime || "Flexible"} />
                       <ReceiptRow label="Status" value="Order Placed ✓" />
                       <ReceiptRow label="Amount Paid" value={`₦${estimatedPrice.toLocaleString()}`} />

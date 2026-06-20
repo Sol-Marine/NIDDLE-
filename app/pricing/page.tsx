@@ -6,32 +6,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { getReceiveRequestById, updateReceiveRequest } from "../lib/delivery";
 import type { ReceiveRequest } from "../lib/delivery";
-
-const riders = [
-  { id: 1, name: "Chidi O.", rating: 4.9, rides: 342, image: "🚴", badge: "Top Rider" },
-  { id: 2, name: "Amara K.", rating: 4.8, rides: 287, image: "🚴", badge: "Fast" },
-  { id: 3, name: "Femi A.", rating: 4.7, rides: 198, image: "🚴", badge: "Eco" },
-  { id: 4, name: "Zainab B.", rating: 4.9, rides: 415, image: "🚴", badge: "Top Rider" },
-];
-
-const timeSlots = [
-  "8:00 AM - 10:00 AM",
-  "10:00 AM - 12:00 PM",
-  "12:00 PM - 2:00 PM",
-  "2:00 PM - 4:00 PM",
-  "4:00 PM - 6:00 PM",
-  "6:00 PM - 8:00 PM",
-];
-
-const packageTypes = [
-  { value: "Document", icon: "📄" },
-  { value: "Food", icon: "🍱" },
-  { value: "Parcel", icon: "📦" },
-  { value: "Groceries", icon: "🛒" },
-  { value: "Other", icon: "📋" },
-];
-
-const sizes = ["Small", "Medium", "Large"];
+import { RIDERS, PACKAGE_TYPES, PACKAGE_TYPE_ICONS, SIZES, TIME_SLOTS } from "@/app/lib/constants";
 
 export default function PricingPage() {
   const [step, setStep] = useState(0);
@@ -197,19 +172,19 @@ export default function PricingPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Package Type</label>
                   <div className="grid grid-cols-5 gap-3">
-                    {packageTypes.map((t) => (
+                    {PACKAGE_TYPES.map((t) => (
                       <button
-                        key={t.value}
+                        key={t}
                         type="button"
-                        onClick={() => setPackageType(t.value)}
+                        onClick={() => setPackageType(t)}
                         className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all duration-200 ${
-                          packageType === t.value
+                          packageType === t
                             ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                             : "border-gray-100 bg-white hover:border-gray-200"
                         }`}
                       >
-                        <span className="text-2xl">{t.icon}</span>
-                        <span className="text-xs font-medium">{t.value}</span>
+                        <span className="text-2xl">{PACKAGE_TYPE_ICONS[t]}</span>
+                        <span className="text-xs font-medium">{t}</span>
                       </button>
                     ))}
                   </div>
@@ -219,21 +194,18 @@ export default function PricingPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Package Size</label>
                   <div className="grid grid-cols-3 gap-3">
-                    {sizes.map((s) => (
+                    {SIZES.map((s) => (
                       <button
-                        key={s}
+                        key={s.label}
                         type="button"
-                        onClick={() => setSize(s)}
+                        onClick={() => setSize(s.label)}
                         className={`p-4 rounded-2xl border-2 font-medium transition-all duration-200 ${
-                          size === s
+                          size === s.label
                             ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                             : "border-gray-100 bg-white hover:border-gray-200"
                         }`}
                       >
-                        {s === "Small" && "📦 "}
-                        {s === "Medium" && "📦📦 "}
-                        {s === "Large" && "📦📦📦 "}
-                        {s}
+                        {s.icon} {s.label}
                       </button>
                     ))}
                   </div>
@@ -318,7 +290,7 @@ export default function PricingPage() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-3">Preferred Time Window</label>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {timeSlots.map((slot) => (
+                    {TIME_SLOTS.map((slot) => (
                       <button
                         key={slot}
                         type="button"
@@ -365,7 +337,7 @@ export default function PricingPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
-                  {riders.map((rider) => (
+                  {RIDERS.map((rider) => (
                     <button
                       key={rider.id}
                       type="button"
@@ -438,7 +410,7 @@ export default function PricingPage() {
                   <SummaryCard
                     emoji="🚴"
                     label="Rider"
-                    value={selectedRider ? riders.find((r) => r.id === selectedRider)?.name || "Selected" : "Not selected"}
+                    value={selectedRider ? RIDERS.find((r) => r.id === selectedRider)?.name || "Selected" : "Not selected"}
                   />
                 </div>
 

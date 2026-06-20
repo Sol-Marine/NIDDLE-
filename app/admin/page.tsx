@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { STATUS_COLORS, STATUS_OPTIONS } from "@/app/lib/constants";
 
 interface Stats {
   totalDeliveries: number;
@@ -46,21 +47,6 @@ interface Rider {
   active: boolean;
 }
 
-const statusOptions: Record<string, string[]> = {
-  "order-placed": ["picked-up"],
-  "picked-up": ["in-transit"],
-  "in-transit": ["out-for-delivery"],
-  "out-for-delivery": ["delivered"],
-};
-
-const statusColors: Record<string, string> = {
-  "order-placed": "bg-blue-100 text-blue-700",
-  "picked-up": "bg-yellow-100 text-yellow-700",
-  "in-transit": "bg-orange-100 text-orange-700",
-  "out-for-delivery": "bg-purple-100 text-purple-700",
-  delivered: "bg-green-100 text-green-700",
-};
-
 export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
@@ -75,7 +61,7 @@ export default function AdminPage() {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((data) => {
-        if (!data.id) { router.push("/login"); return; }
+        if (!data.id || data.role !== "admin") { router.push("/login"); return; }
         setUser(data);
       })
       .catch(() => router.push("/login"));
@@ -99,7 +85,7 @@ export default function AdminPage() {
   }, [user]);
 
   const advanceStatus = async (id: string, currentStatus: string) => {
-    const next = statusOptions[currentStatus];
+    const next = STATUS_OPTIONS[currentStatus];
     if (!next || next.length === 0) return;
     const res = await fetch("/api/admin", {
       method: "POST",
@@ -204,7 +190,7 @@ export default function AdminPage() {
                     <p className="font-semibold">{d.id}</p>
                     <p className="text-sm text-gray-500">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
                   </div>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[d.status] || "bg-gray-100 text-gray-600"}`}>
+                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100 text-gray-600"}`}>
                     {d.status.replace(/-/g, " ")}
                   </span>
                 </div>
@@ -254,17 +240,17 @@ export default function AdminPage() {
                         )}
                       </td>
                       <td className="p-4">
-                        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${statusColors[d.status] || "bg-gray-100"}`}>
+                        <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100"}`}>
                           {d.status.replace(/-/g, " ")}
                         </span>
                       </td>
                       <td className="p-4">
-                        {statusOptions[d.status] ? (
+                        {STATUS_OPTIONS[d.status] ? (
                           <button
                             onClick={() => advanceStatus(d.id, d.status)}
                             className="bg-[#5A432C] text-white px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#4a3520] transition"
                           >
-                            {statusOptions[d.status][0].replace(/-/g, " ")}
+                            {STATUS_OPTIONS[d.status][0].replace(/-/g, " ")}
                           </button>
                         ) : (
                           <span className="text-xs text-gray-400">Done</span>
