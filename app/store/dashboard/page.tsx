@@ -93,6 +93,8 @@ export default function StoreDashboardPage() {
   };
 
   const toggleItemAvailability = async (item: StoreItem) => {
+    const action = item.isAvailable ? "hide" : "show";
+    if (!confirm(`Are you sure you want to ${action} "${item.name}"?`)) return;
     try {
       await fetch(`/api/stores/${storeId}/items`, {
         method: "POST",
@@ -133,6 +135,8 @@ export default function StoreDashboardPage() {
   const pendingOrders = orders.filter((o) => ["pending", "confirmed", "preparing", "ready"].includes(o.status));
   const activeOrders = orders.filter((o) => ["picked-up", "in-transit"].includes(o.status));
   const completedOrders = orders.filter((o) => o.status === "delivered");
+  const totalRevenue = completedOrders.reduce((sum, o) => sum + o.totalPrice, 0);
+  const todayOrders = orders.filter((o) => new Date(o.createdAt).toDateString() === new Date().toDateString());
 
   return (
     <main className="min-h-screen bg-[#faf7f2]">
@@ -149,7 +153,9 @@ export default function StoreDashboardPage() {
               <div className="flex flex-wrap gap-2 md:gap-4 text-sm">
                 <div className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl"><span className="font-bold">{pendingOrders.length}</span> Pending</div>
                 <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl"><span className="font-bold">{activeOrders.length}</span> Active</div>
-                <div className="bg-green-50 text-green-700 px-4 py-2 rounded-xl"><span className="font-bold">{completedOrders.length}</span> Completed</div>
+                <div className="bg-green-50 text-green-700 px-4 py-2 rounded-xl"><span className="font-bold">{completedOrders.length}</span> Done</div>
+                <div className="bg-purple-50 text-purple-700 px-4 py-2 rounded-xl"><span className="font-bold">₦{totalRevenue.toLocaleString()}</span> Revenue</div>
+                <div className="bg-gray-50 text-gray-700 px-4 py-2 rounded-xl"><span className="font-bold">{todayOrders.length}</span> Today</div>
               </div>
             </div>
           </div>
@@ -194,8 +200,13 @@ export default function StoreDashboardPage() {
                     {statusInfo.next.length > 0 && (
                       <div className="flex gap-2 flex-wrap">
                         {statusInfo.next.map((ns) => (
-                          <button key={ns} onClick={() => updateOrderStatus(order.id, ns)} className="px-4 py-1.5 bg-[#5A432C] text-white text-xs font-semibold rounded-lg hover:bg-[#4a3520] transition">
-                            Mark as {ORDER_STATUS[ns]?.label || ns}
+                          <button key={ns} onClick={() => {
+                            if (ns === "cancelled") {
+                              if (!confirm("Are you sure you want to cancel this order?")) return;
+                            }
+                            updateOrderStatus(order.id, ns);
+                          }} className={`px-4 py-1.5 text-white text-xs font-semibold rounded-lg transition ${ns === "cancelled" ? "bg-red-500 hover:bg-red-600" : "bg-[#5A432C] hover:bg-[#4a3520]"}`}>
+                            {ns === "cancelled" ? "Cancel Order" : `Mark as ${ORDER_STATUS[ns]?.label || ns}`}
                           </button>
                         ))}
                       </div>

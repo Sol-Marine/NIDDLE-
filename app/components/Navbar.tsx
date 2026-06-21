@@ -79,7 +79,10 @@ export default function Navbar() {
                 ) : user.role === "admin" || user.role === "staff" ? (
                   <Link href="/admin" className="hover:text-[#D4A24C] transition-colors">Dashboard</Link>
                 ) : (
-                  <Link href="/profile" className="hover:text-[#D4A24C] transition-colors">Profile</Link>
+                  <>
+                    <Link href="/profile" className="hover:text-[#D4A24C] transition-colors">Profile</Link>
+                    <Link href="/my-orders" className="hover:text-[#D4A24C] transition-colors">My Orders</Link>
+                  </>
                 )}
                 <div className="relative">
                   <button onClick={openNotifs} className="relative p-2 hover:bg-gray-100 rounded-xl transition">
@@ -191,9 +194,14 @@ export default function Navbar() {
                     Dashboard
                   </Link>
                 ) : (
-                  <Link href="/profile" onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition">
-                    Profile
-                  </Link>
+                  <>
+                    <Link href="/profile" onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition">
+                      Profile
+                    </Link>
+                    <Link href="/my-orders" onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition">
+                      My Orders
+                    </Link>
+                  </>
                 )}
               </>
             )}
