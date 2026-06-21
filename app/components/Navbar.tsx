@@ -71,6 +71,7 @@ export default function Navbar() {
             <Link href="/pricing" className="hover:text-[#D4A24C] transition-colors">Quote</Link>
             <Link href="/contact" className="hover:text-[#D4A24C] transition-colors">Contact</Link>
             <Link href="/stores" className="hover:text-[#D4A24C] transition-colors">Stores</Link>
+            <Link href="/rider/dashboard" className="hover:text-[#D4A24C] transition-colors">Ride</Link>
 
             {user && (
               <>
@@ -82,6 +83,7 @@ export default function Navbar() {
                   <>
                     <Link href="/profile" className="hover:text-[#D4A24C] transition-colors">Profile</Link>
                     <Link href="/my-orders" className="hover:text-[#D4A24C] transition-colors">My Orders</Link>
+                    <Link href="/wallet" className="hover:text-[#D4A24C] transition-colors">Wallet</Link>
                   </>
                 )}
                 <div className="relative">
@@ -171,6 +173,7 @@ export default function Navbar() {
               { href: "/pricing", label: "Get a Quote" },
               { href: "/contact", label: "Contact Us" },
               { href: "/stores", label: "Browse Stores" },
+              { href: "/rider/dashboard", label: "Rider Portal" },
             ].map((link) => (
               <Link
                 key={link.href}
@@ -200,6 +203,9 @@ export default function Navbar() {
                     </Link>
                     <Link href="/my-orders" onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition">
                       My Orders
+                    </Link>
+                    <Link href="/wallet" onClick={() => setMobileOpen(false)} className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition">
+                      Wallet
                     </Link>
                   </>
                 )}
