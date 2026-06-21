@@ -23,11 +23,22 @@ export default function StoresPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const [search, setSearch] = useState("");
+  const [reviewCounts, setReviewCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     fetch("/api/stores")
       .then((r) => r.json())
-      .then((data) => { setStores(Array.isArray(data) ? data : []); setLoading(false); })
+      .then((data) => {
+        const list = Array.isArray(data) ? data : [];
+        setStores(list);
+        setLoading(false);
+        list.forEach((s: Store) => {
+          fetch(`/api/stores/${s.id}/reviews`)
+            .then((r) => r.json())
+            .then((d) => setReviewCounts((prev) => ({ ...prev, [s.id]: d.stats?.count || 0 })))
+            .catch(() => {});
+        });
+      })
       .catch(() => setLoading(false));
   }, []);
 
@@ -115,11 +126,16 @@ export default function StoresPage() {
                           <h3 className="font-bold text-gray-900 text-lg">{store.name}</h3>
                           <span className="text-xs text-[#D4A24C] font-semibold bg-[#D4A24C]/10 px-2 py-0.5 rounded-full">{store.category}</span>
                         </div>
-                        {store.rating > 0 && (
+                        {reviewCounts[store.id] ? (
+                          <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
+                            <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
+                            <span className="text-xs text-gray-400 font-normal">({reviewCounts[store.id]})</span>
+                          </span>
+                        ) : store.rating > 0 ? (
                           <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
                             <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                       <p className="text-gray-500 text-sm line-clamp-2 mb-3">{store.description || "No description"}</p>
                       <div className="flex items-center justify-between text-xs text-gray-400">

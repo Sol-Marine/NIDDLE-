@@ -183,6 +183,16 @@ export interface StoreMessage {
   createdAt: string;
 }
 
+export interface StoreReview {
+  id: string;
+  storeId: string;
+  userId: string;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
 /* ── Row ↔ Model Mappers ── */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1165,4 +1175,73 @@ export async function getUnreadStoreMessageCount(storeId: string, userId: string
     .eq("read", false);
   if (error) throw error;
   return count ?? 0;
+}
+
+/* ── Store Reviews ── */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromStoreReviewRow(row: any): StoreReview {
+  return {
+    id: row.id as string,
+    storeId: row.store_id as string,
+    userId: row.user_id as string,
+    userName: row.user_name as string,
+    rating: row.rating as number,
+    comment: row.comment as string,
+    createdAt: row.created_at as string,
+  };
+}
+
+function toStoreReviewRow(data: Partial<StoreReview>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (data.id !== undefined) row.id = data.id;
+  if (data.storeId !== undefined) row.store_id = data.storeId;
+  if (data.userId !== undefined) row.user_id = data.userId;
+  if (data.userName !== undefined) row.user_name = data.userName;
+  if (data.rating !== undefined) row.rating = data.rating;
+  if (data.comment !== undefined) row.comment = data.comment;
+  if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  return row;
+}
+
+export async function getStoreReviews(storeId: string): Promise<StoreReview[]> {
+  const { data, error } = await supabase
+    .from("store_reviews")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreReviewRow);
+}
+
+export async function createStoreReview(data: StoreReview): Promise<StoreReview> {
+  const row = toStoreReviewRow(data);
+  const { data: created, error } = await supabase
+    .from("store_reviews")
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw error;
+  return fromStoreReviewRow(created);
+}
+
+export async function getStoreReviewStats(storeId: string): Promise<{ average: number; count: number }> {
+  const { data, error } = await supabase
+    .from("store_reviews")
+    .select("rating")
+    .eq("store_id", storeId);
+  if (error) return { average: 0, count: 0 };
+  if (!data || data.length === 0) return { average: 0, count: 0 };
+  const sum = data.reduce((acc, r) => acc + (r.rating as number), 0);
+  return { average: Math.round((sum / data.length) * 10) / 10, count: data.length };
+}
+
+export async function hasUserReviewedStore(storeId: string, userId: string): Promise<boolean> {
+  const { count, error } = await supabase
+    .from("store_reviews")
+    .select("*", { count: "exact", head: true })
+    .eq("store_id", storeId)
+    .eq("user_id", userId);
+  if (error) return false;
+  return (count ?? 0) > 0;
 }
