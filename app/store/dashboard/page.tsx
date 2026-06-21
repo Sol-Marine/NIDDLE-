@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
-import type { Store, StoreItem, StoreOrder } from "../../lib/db";
+import type { Store, StoreItem, StoreOrder, StoreMessage } from "../../lib/db";
 
 const ORDER_STATUS: Record<string, { label: string; color: string; next: string[] }> = {
   pending: { label: "Pending", color: "bg-yellow-100 text-yellow-700", next: ["confirmed", "cancelled"] },
@@ -24,7 +24,8 @@ export default function StoreDashboardPage() {
   const [items, setItems] = useState<StoreItem[]>([]);
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"orders" | "items" | "add-item">("orders");
+  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages">("orders");
+  const [messages, setMessages] = useState<StoreMessage[]>([]);
 
   const [itemName, setItemName] = useState("");
   const [itemDesc, setItemDesc] = useState("");
@@ -53,10 +54,12 @@ export default function StoreDashboardPage() {
       fetch(`/api/stores/${storeId}`).then((r) => r.json()),
       fetch(`/api/stores/${storeId}/items`).then((r) => r.json()),
       fetch(`/api/stores/${storeId}/orders`, { headers: { "Content-Type": "application/json" } }).then((r) => r.json()),
-    ]).then(([s, i, o]) => {
+      fetch(`/api/stores/${storeId}/messages`).then((r) => r.json()),
+    ]).then(([s, i, o, m]) => {
       setStore(s);
       setItems(Array.isArray(i) ? i : []);
       setOrders(Array.isArray(o) ? o : []);
+      setMessages(Array.isArray(m) ? m : []);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [storeId]);
@@ -156,9 +159,9 @@ export default function StoreDashboardPage() {
       <section className="pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["orders", "items", "add-item"] as const).map((t) => (
+            {(["orders", "items", "add-item", "messages"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${tab === t ? "bg-[#5A432C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#D4A24C]"}`}>
-                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : "➕ Add Item"}
+                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : "💬 Messages"}
               </button>
             ))}
           </div>
@@ -257,6 +260,61 @@ export default function StoreDashboardPage() {
                   {addingItem ? "Adding..." : "Add Item →"}
                 </button>
               </div>
+            </div>
+          )}
+
+          {tab === "messages" && store && (
+            <div className="space-y-3">
+              {messages.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-3xl">
+                  <span className="text-5xl block mb-3">💬</span>
+                  <p className="text-gray-500">No messages yet. Customers will chat with you from your store page.</p>
+                </div>
+              ) : (
+                <>
+                  {(() => {
+                    const conversations = new Map<string, StoreMessage[]>();
+                    messages.forEach((m) => {
+                      const key = m.senderId === store.ownerId ? "me" : m.senderId;
+                      if (key !== "me") {
+                        if (!conversations.has(key)) conversations.set(key, []);
+                        conversations.get(key)!.push(m);
+                      }
+                    });
+                    if (conversations.size === 0) {
+                      conversations.set("customer", messages);
+                    }
+                    return Array.from(conversations.entries()).map(([senderId, msgs]) => {
+                      const lastMsg = msgs[msgs.length - 1];
+                      const unread = msgs.filter((m) => !m.read && m.senderId !== store.ownerId).length;
+                      return (
+                        <div key={senderId} className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 rounded-full bg-[#D4A24C]/10 flex items-center justify-center text-lg">👤</div>
+                            <div className="flex-1">
+                              <p className="font-bold text-sm text-gray-900">{lastMsg.senderName}</p>
+                              <p className="text-xs text-gray-500">Customer</p>
+                            </div>
+                            {unread > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{unread}</span>}
+                          </div>
+                          <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
+                            {msgs.map((m) => {
+                              const isMe = m.senderId === store.ownerId;
+                              return (
+                                <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "bg-[#5A432C] text-white" : "bg-gray-100 text-gray-900"}`}>
+                                    {m.message}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
+                </>
+              )}
             </div>
           )}
         </div>

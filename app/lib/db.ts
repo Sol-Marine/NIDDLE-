@@ -172,6 +172,17 @@ export interface StoreOrder {
   updatedAt: string;
 }
 
+export interface StoreMessage {
+  id: string;
+  storeId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
 /* ── Row ↔ Model Mappers ── */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1073,4 +1084,85 @@ export async function updateStoreOrder(id: string, updates: Partial<StoreOrder>)
     .single();
   if (error) throw error;
   return updated ? fromStoreOrderRow(updated) : null;
+}
+
+/* ── Store Messages ── */
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromStoreMessageRow(row: any): StoreMessage {
+  return {
+    id: row.id as string,
+    storeId: row.store_id as string,
+    senderId: row.sender_id as string,
+    senderName: row.sender_name as string,
+    senderRole: row.sender_role as string,
+    message: row.message as string,
+    read: row.read as boolean,
+    createdAt: row.created_at as string,
+  };
+}
+
+function toStoreMessageRow(data: Partial<StoreMessage>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (data.id !== undefined) row.id = data.id;
+  if (data.storeId !== undefined) row.store_id = data.storeId;
+  if (data.senderId !== undefined) row.sender_id = data.senderId;
+  if (data.senderName !== undefined) row.sender_name = data.senderName;
+  if (data.senderRole !== undefined) row.sender_role = data.senderRole;
+  if (data.message !== undefined) row.message = data.message;
+  if (data.read !== undefined) row.read = data.read;
+  if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  return row;
+}
+
+export async function getStoreMessages(storeId: string): Promise<StoreMessage[]> {
+  const { data, error } = await supabase
+    .from("store_messages")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreMessageRow);
+}
+
+export async function getStoreConversation(storeId: string, userId: string): Promise<StoreMessage[]> {
+  const { data, error } = await supabase
+    .from("store_messages")
+    .select("*")
+    .eq("store_id", storeId)
+    .or(`sender_id.eq.${userId},sender_id.neq.${userId}`)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreMessageRow);
+}
+
+export async function createStoreMessage(data: StoreMessage): Promise<StoreMessage> {
+  const row = toStoreMessageRow(data);
+  const { data: created, error } = await supabase
+    .from("store_messages")
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw error;
+  return fromStoreMessageRow(created);
+}
+
+export async function markStoreMessagesRead(storeId: string, userId: string): Promise<void> {
+  await supabase
+    .from("store_messages")
+    .update({ read: true })
+    .eq("store_id", storeId)
+    .neq("sender_id", userId)
+    .eq("read", false);
+}
+
+export async function getUnreadStoreMessageCount(storeId: string, userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("store_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("store_id", storeId)
+    .neq("sender_id", userId)
+    .eq("read", false);
+  if (error) throw error;
+  return count ?? 0;
 }

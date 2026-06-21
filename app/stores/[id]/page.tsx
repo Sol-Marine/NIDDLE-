@@ -3,11 +3,13 @@
 import { useState, useEffect, use } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import ChatBox from "../../components/ChatBox";
 import type { Store, StoreItem, StoreOrder } from "../../lib/db";
 
 export default function StoreDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const [store, setStore] = useState<Store | null>(null);
+  const [user, setUser] = useState<{ id: string; name: string; role: string } | null>(null);
   const [items, setItems] = useState<StoreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [cart, setCart] = useState<{ item: StoreItem; qty: number }[]>([]);
@@ -25,9 +27,11 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
     Promise.all([
       fetch(`/api/stores/${id}`).then((r) => r.json()),
       fetch(`/api/stores/${id}/items`).then((r) => r.json()),
-    ]).then(([s, i]) => {
+      fetch("/api/auth/me").then((r) => r.json()),
+    ]).then(([s, i, u]) => {
       setStore(s);
       setItems(Array.isArray(i) ? i : []);
+      if (u.id) setUser(u);
       setLoading(false);
     }).catch(() => setLoading(false));
   }, [id]);
@@ -282,6 +286,16 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
             </div>
           </div>
         </div>
+      )}
+
+      {user && store && (
+        <ChatBox
+          storeId={id}
+          currentUserId={user.id}
+          currentUserName={user.name}
+          currentUserRole={user.role}
+          storeName={store.name}
+        />
       )}
 
       <Footer />
