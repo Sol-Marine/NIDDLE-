@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../../components/Navbar";
@@ -21,6 +21,12 @@ export default function StoreRegisterPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    fetch("/api/auth/me").then((r) => r.json()).then((d) => {
+      if (!d.id) router.replace("/login");
+    });
+  }, [router]);
+
   const handleRegister = async () => {
     if (!name || !category || !address || !phone || !email) {
       setError("Please fill in all required fields");
@@ -36,6 +42,7 @@ export default function StoreRegisterPage() {
       });
       if (!res.ok) {
         const data = await res.json();
+        if (res.status === 401) throw new Error("Please log in to register a store");
         throw new Error(data.error || "Failed to register store");
       }
       const store = await res.json();
