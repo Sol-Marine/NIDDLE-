@@ -18,10 +18,7 @@ function LoginInner() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
-  const [verifyToken, setVerifyToken] = useState("");
 
   useEffect(() => {
     const err = searchParams.get("error");
@@ -39,120 +36,62 @@ function LoginInner() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    const endpoint = isRegister ? "/api/auth/register" : "/api/auth/login";
-    const body = isRegister ? { name, email, password } : { email, password };
-    const res = await fetch(endpoint, {
+    const res = await fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ email, password }),
     });
     const data = await res.json();
     if (!res.ok) {
       setError(data.error || "Something went wrong");
       return;
     }
-    if (isRegister && data.ok) {
-      setVerifyToken(data.verifyToken);
-      return;
+    if (data.role === "admin" || data.role === "staff") {
+      router.push("/admin");
+    } else if (data.role === "store") {
+      router.push("/store/dashboard");
+    } else {
+      router.push("/");
     }
-    router.push("/admin");
   };
 
   return (
     <main className="min-h-screen flex">
-      {/* Left — Brand Panel */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-[#1a1a2e] flex-col justify-between p-16">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-25"
-          style={{ backgroundImage: "url(/national-theater.jpg)" }}
-        />
+        <div className="absolute inset-0 bg-cover bg-center opacity-25" style={{ backgroundImage: "url(/national-theater.jpg)" }} />
         <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#1a1a2e]/95 to-[#2a1a0e]/90" />
         <div className="absolute top-20 -right-20 w-96 h-96 bg-[#D4A24C]/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-[#C2533D]/5 rounded-full blur-3xl" />
-
         <div className="relative z-10">
-          <Link href="/">
-            <h1 className="text-4xl font-extrabold tracking-tight text-white">
-              NIDDLE
-            </h1>
-          </Link>
+          <Link href="/"><h1 className="text-4xl font-extrabold tracking-tight text-white">NIDDLE</h1></Link>
         </div>
-
         <div className="relative z-10 max-w-md">
           <div className="w-14 h-14 rounded-2xl bg-[#D4A24C]/15 flex items-center justify-center mb-8">
             <span className="text-3xl">🚴</span>
           </div>
-          <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">
-            Welcome back to
-            <br />
-            <span className="text-[#D4A24C]">fast delivery</span>
-          </h2>
-          <p className="text-gray-400 text-lg leading-relaxed">
-            Login to manage deliveries, track packages in real-time, and connect with your preferred riders across Lagos.
-          </p>
-
+          <h2 className="text-4xl font-extrabold text-white mb-4 leading-tight">Welcome back to<br /><span className="text-[#D4A24C]">fast delivery</span></h2>
+          <p className="text-gray-400 text-lg leading-relaxed">Login to manage deliveries, track packages in real-time, and connect with your preferred riders across Lagos.</p>
           <div className="flex gap-6 mt-12">
-            <div>
-              <p className="text-2xl font-bold text-white">10K+</p>
-              <p className="text-xs text-gray-500">Deliveries</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">500+</p>
-              <p className="text-xs text-gray-500">Riders</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white">4.9</p>
-              <p className="text-xs text-gray-500">Rating</p>
-            </div>
+            <div><p className="text-2xl font-bold text-white">10K+</p><p className="text-xs text-gray-500">Deliveries</p></div>
+            <div><p className="text-2xl font-bold text-white">500+</p><p className="text-xs text-gray-500">Riders</p></div>
+            <div><p className="text-2xl font-bold text-white">4.9</p><p className="text-xs text-gray-500">Rating</p></div>
           </div>
         </div>
-
-        <p className="relative z-10 text-xs text-gray-600">
-          &copy; {new Date().getFullYear()} NIDDLE. All rights reserved.
-        </p>
+        <p className="relative z-10 text-xs text-gray-600">&copy; {new Date().getFullYear()} NIDDLE. All rights reserved.</p>
       </div>
 
-      {/* Right — Form Panel */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 bg-gradient-to-br from-[#faf7f2] via-white to-[#FFF8F0]">
         <div className="w-full max-w-md animate-fade-in-up">
-          {/* Mobile brand */}
           <div className="lg:hidden text-center mb-6 md:mb-10">
-            <Link href="/">
-              <h1 className="text-3xl font-extrabold text-[#5A432C]">NIDDLE</h1>
-            </Link>
+            <Link href="/"><h1 className="text-3xl font-extrabold text-[#5A432C]">NIDDLE</h1></Link>
             <p className="text-gray-500 text-sm mt-1">Fast Bicycle Delivery</p>
           </div>
 
-          {verifyToken ? (
-            <div className="bg-white rounded-3xl shadow-2xl p-8 text-center">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <span className="text-3xl">✅</span>
-              </div>
-              <h1 className="text-2xl font-extrabold text-gray-900 mb-2">Account created!</h1>
-              <p className="text-gray-500 text-sm mb-6">Check your email for the verification link.</p>
-              <a
-                href={`/verify-email?token=${verifyToken}`}
-                className="block w-full bg-gradient-to-r from-[#D4A24C] to-[#C2533D] text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all duration-200"
-              >
-                Verify Email Now →
-              </a>
-              <button
-                onClick={() => { setVerifyToken(""); setIsRegister(false); }}
-                className="block w-full mt-4 text-sm text-[#5A432C] font-semibold hover:underline"
-              >
-                Back to login
-              </button>
-            </div>
-          ) : (
-          <>
           <div className="mb-8">
             <h2 className="text-3xl font-extrabold text-gray-900 mb-2">Sign in</h2>
-            <p className="text-gray-500 text-sm">
-              Welcome back! Enter your credentials to continue.
-            </p>
+            <p className="text-gray-500 text-sm">Welcome back! Enter your credentials to continue.</p>
           </div>
 
-          {/* Social Buttons */}
           <div className="flex gap-3 mb-6">
             <a href="/api/auth/google" className="flex-1">
               <button type="button" className="w-full flex items-center justify-center gap-3 border-2 border-gray-200 rounded-2xl py-3.5 text-sm font-medium text-gray-700 hover:border-gray-300 hover:bg-gray-50 transition-all duration-200">
@@ -167,7 +106,6 @@ function LoginInner() {
             </a>
           </div>
 
-          {/* Divider */}
           <div className="flex items-center gap-4 mb-6">
             <div className="flex-1 h-px bg-gray-200" />
             <span className="text-xs text-gray-400 font-medium">or sign in with email</span>
@@ -176,89 +114,39 @@ function LoginInner() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl p-4">
-                {error}
-              </div>
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-2xl p-4">{error}</div>
             )}
-
-            {isRegister && (
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">👤</span>
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    className="w-full border-2 border-gray-200 rounded-2xl p-4 pl-12 text-sm focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all bg-white"
-                  />
-                </div>
-              </div>
-            )}
-
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address
-              </label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">✉️</span>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  className="w-full border-2 border-gray-200 rounded-2xl p-4 pl-12 text-sm focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all bg-white"
-                />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" className="w-full border-2 border-gray-200 rounded-2xl p-4 pl-12 text-sm focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all bg-white" />
               </div>
             </div>
-
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔒</span>
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Enter your password"
-                  className="w-full border-2 border-gray-200 rounded-2xl p-4 pl-12 pr-14 text-sm focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all bg-white"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition text-lg"
-                >
+                <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter your password" className="w-full border-2 border-gray-200 rounded-2xl p-4 pl-12 pr-14 text-sm focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all bg-white" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition text-lg">
                   {showPassword ? "🙈" : "👁️"}
                 </button>
               </div>
-              {!isRegister && (
-                <Link href="/forgot-password" className="text-sm text-[#D4A24C] font-semibold hover:underline mt-2 inline-block">
-                  Forgot password?
-                </Link>
-              )}
+              <Link href="/forgot-password" className="text-sm text-[#D4A24C] font-semibold hover:underline mt-2 inline-block">
+                Forgot password?
+              </Link>
             </div>
-
-            <button
-              type="submit"
-              className="w-full bg-gradient-to-r from-[#5A432C] to-[#4a3520] text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200"
-            >
-              {isRegister ? "Create Account" : "Sign In"}
+            <button type="submit" className="w-full bg-gradient-to-r from-[#5A432C] to-[#4a3520] text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all duration-200">
+              Sign In
             </button>
           </form>
 
-          <p className="text-center mt-8 text-sm text-gray-500">
-            {isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
-            <button
-              type="button"
-              onClick={() => { setIsRegister(!isRegister); setError(""); }}
-              className="text-[#5A432C] font-bold hover:underline"
-            >
-              {isRegister ? "Sign in" : "Create account"}
-            </button>
-          </p>
-          </>
-          )}
+          <div className="mt-8 text-center space-y-3">
+            <p className="text-sm text-gray-500">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="text-[#5A432C] font-bold hover:underline">Create one</Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

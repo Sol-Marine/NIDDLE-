@@ -34,7 +34,21 @@ export default function StoreDashboardPage() {
   const [addingItem, setAddingItem] = useState(false);
 
   useEffect(() => {
-    if (!storeId) { setLoading(false); return; }
+    if (!storeId) {
+      fetch("/api/auth/me").then((r) => r.json()).then((d) => {
+        if (d.role === "store") {
+          fetch("/api/stores").then((r) => r.json()).then((stores) => {
+            const myStore = Array.isArray(stores) ? stores.find((s: { ownerId: string }) => s.ownerId === d.id) : null;
+            if (myStore) {
+              window.location.href = `/store/dashboard?storeId=${myStore.id}`;
+            } else {
+              window.location.href = "/store/register";
+            }
+          });
+        }
+      });
+      return;
+    }
     Promise.all([
       fetch(`/api/stores/${storeId}`).then((r) => r.json()),
       fetch(`/api/stores/${storeId}/items`).then((r) => r.json()),
