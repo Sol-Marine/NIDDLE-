@@ -50,6 +50,8 @@ function LoginInner() {
       router.push("/admin");
     } else if (data.role === "store") {
       router.push("/store/dashboard");
+    } else if (data.role === "rider") {
+      router.push("/rider/dashboard");
     } else {
       router.push("/");
     }
@@ -155,6 +157,11 @@ function LoginInner() {
                 </button>
               </Link>
             </div>
+            <Link href="/rider/register" className="mt-3 block">
+              <button type="button" className="w-full border-2 border-gray-200 text-gray-600 py-3 rounded-2xl font-bold text-sm hover:border-[#D4A24C] hover:text-[#5A432C] transition-all duration-200">
+                🚴 Become a Rider
+              </button>
+            </Link>
           </div>
         </div>
       </div>

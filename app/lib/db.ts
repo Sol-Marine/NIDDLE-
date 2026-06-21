@@ -67,7 +67,7 @@ export interface User {
   password: string;
   phone?: string;
   avatar?: string;
-  role: "admin" | "staff" | "customer" | "store";
+  role: "admin" | "staff" | "customer" | "store" | "rider";
   emailVerified?: boolean;
   emailVerifyToken?: string;
   createdAt: string;

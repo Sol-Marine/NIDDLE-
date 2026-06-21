@@ -48,7 +48,7 @@ export default function Navbar() {
             <Link href="/rider/dashboard" className="hover:text-[#D4A24C] transition-colors">Ride</Link>
 
             {totalItems > 0 && (
-              <Link href="/stores" className="relative hover:text-[#D4A24C] transition-colors">
+              <Link href="/cart" className="relative hover:text-[#D4A24C] transition-colors">
                 🛒
                 <span className="absolute -top-2 -right-3 bg-[#D4A24C] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                   {totalItems}
