@@ -183,17 +183,6 @@ export default function SendPackagePage() {
                   />
                 ))}
                     </div>
-                    {packageTypes.includes("Other") && (
-                      <div className="mt-3">
-                        <input
-                          type="text"
-                          value={otherPackageText}
-                          onChange={(e) => setOtherPackageText(e.target.value)}
-                          placeholder="What are you sending?"
-                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
-                        />
-                      </div>
-                    )}
                   </div>
 
             <div className="p-5 md:p-8 lg:p-12">
@@ -223,6 +212,17 @@ export default function SendPackagePage() {
                         </button>
                       ))}
                     </div>
+                    {packageTypes.includes("Other") && (
+                      <div className="mt-3">
+                        <input
+                          type="text"
+                          value={otherPackageText}
+                          onChange={(e) => setOtherPackageText(e.target.value)}
+                          placeholder="What are you sending?"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                        />
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-3">Package Size</label>
