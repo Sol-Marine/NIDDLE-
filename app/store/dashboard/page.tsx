@@ -264,63 +264,106 @@ export default function StoreDashboardPage() {
           )}
 
           {tab === "messages" && store && (
-            <div className="space-y-3">
-              {messages.length === 0 ? (
-                <div className="text-center py-16 bg-white rounded-3xl">
-                  <span className="text-5xl block mb-3">💬</span>
-                  <p className="text-gray-500">No messages yet. Customers will chat with you from your store page.</p>
-                </div>
-              ) : (
-                <>
-                  {(() => {
-                    const conversations = new Map<string, StoreMessage[]>();
-                    messages.forEach((m) => {
-                      const key = m.senderId === store.ownerId ? "me" : m.senderId;
-                      if (key !== "me") {
-                        if (!conversations.has(key)) conversations.set(key, []);
-                        conversations.get(key)!.push(m);
-                      }
-                    });
-                    if (conversations.size === 0) {
-                      conversations.set("customer", messages);
-                    }
-                    return Array.from(conversations.entries()).map(([senderId, msgs]) => {
-                      const lastMsg = msgs[msgs.length - 1];
-                      const unread = msgs.filter((m) => !m.read && m.senderId !== store.ownerId).length;
-                      return (
-                        <div key={senderId} className="bg-white rounded-2xl p-4 shadow-md border border-gray-100">
-                          <div className="flex items-center gap-3 mb-3">
-                            <div className="w-10 h-10 rounded-full bg-[#D4A24C]/10 flex items-center justify-center text-lg">👤</div>
-                            <div className="flex-1">
-                              <p className="font-bold text-sm text-gray-900">{lastMsg.senderName}</p>
-                              <p className="text-xs text-gray-500">Customer</p>
-                            </div>
-                            {unread > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{unread}</span>}
-                          </div>
-                          <div className="space-y-2 max-h-48 overflow-y-auto mb-3">
-                            {msgs.map((m) => {
-                              const isMe = m.senderId === store.ownerId;
-                              return (
-                                <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "bg-[#5A432C] text-white" : "bg-gray-100 text-gray-900"}`}>
-                                    {m.message}
-                                  </div>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      );
-                    });
-                  })()}
-                </>
-              )}
-            </div>
+            <MessagesTab storeId={store.id} ownerId={store.ownerId} messages={messages} setMessages={setMessages} />
           )}
         </div>
       </section>
 
       <Footer />
     </main>
+  );
+}
+
+function MessagesTab({ storeId, ownerId, messages, setMessages }: { storeId: string; ownerId: string; messages: StoreMessage[]; setMessages: React.Dispatch<React.SetStateAction<StoreMessage[]>> }) {
+  const [replyInputs, setReplyInputs] = useState<Record<string, string>>({});
+  const [sending, setSending] = useState<string | null>(null);
+
+  const conversations = new Map<string, StoreMessage[]>();
+  messages.forEach((m) => {
+    if (m.senderId !== ownerId) {
+      if (!conversations.has(m.senderId)) conversations.set(m.senderId, []);
+      conversations.get(m.senderId)!.push(m);
+    }
+  });
+
+  const sendReply = async (senderId: string) => {
+    const text = replyInputs[senderId]?.trim();
+    if (!text || sending) return;
+    setSending(senderId);
+    try {
+      const res = await fetch(`/api/stores/${storeId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+      if (res.ok) {
+        const msg = await res.json();
+        setMessages((prev) => [...prev, msg]);
+        setReplyInputs((prev) => ({ ...prev, [senderId]: "" }));
+      }
+    } catch { /* ignore */ }
+    finally { setSending(null); }
+  };
+
+  if (conversations.size === 0) {
+    return (
+      <div className="text-center py-16 bg-white rounded-3xl">
+        <span className="text-5xl block mb-3">💬</span>
+        <p className="text-gray-500">No messages yet. Customers will chat with you from your store page.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {Array.from(conversations.entries()).map(([senderId, msgs]) => {
+        const lastMsg = msgs[msgs.length - 1];
+        const unread = msgs.filter((m) => !m.read && m.senderId !== ownerId).length;
+        return (
+          <div key={senderId} className="bg-white rounded-2xl p-5 shadow-md border border-gray-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-[#D4A24C]/10 flex items-center justify-center text-lg">👤</div>
+              <div className="flex-1">
+                <p className="font-bold text-sm text-gray-900">{lastMsg.senderName}</p>
+                <p className="text-xs text-gray-500">Customer</p>
+              </div>
+              {unread > 0 && <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{unread}</span>}
+            </div>
+            <div className="space-y-2 max-h-60 overflow-y-auto mb-3 bg-gray-50 rounded-xl p-3">
+              {msgs.map((m) => {
+                const isMe = m.senderId === ownerId;
+                return (
+                  <div key={m.id} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${isMe ? "bg-[#5A432C] text-white" : "bg-white text-gray-900 border border-gray-100"}`}>
+                      {m.message}
+                      <p className={`text-[10px] mt-1 ${isMe ? "text-white/50" : "text-gray-400"}`}>
+                        {new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={replyInputs[senderId] || ""}
+                onChange={(e) => setReplyInputs((prev) => ({ ...prev, [senderId]: e.target.value }))}
+                onKeyDown={(e) => e.key === "Enter" && sendReply(senderId)}
+                placeholder="Type a reply..."
+                className="flex-1 border-2 border-gray-100 rounded-xl px-4 py-2.5 text-sm focus:border-[#D4A24C] outline-none"
+              />
+              <button
+                onClick={() => sendReply(senderId)}
+                disabled={sending === senderId || !replyInputs[senderId]?.trim()}
+                className="px-5 py-2.5 bg-[#D4A24C] text-white text-sm font-semibold rounded-xl hover:bg-[#c49540] transition disabled:opacity-50"
+              >
+                {sending === senderId ? "..." : "Send"}
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
