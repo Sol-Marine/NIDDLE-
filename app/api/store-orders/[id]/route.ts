@@ -8,6 +8,7 @@ import {
   supabase,
 } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth";
+import { sendOrderDelivered } from "@/app/lib/email";
 
 async function notifyCustomer(email: string, title: string, message: string, link: string) {
   if (!email) return;
@@ -54,6 +55,10 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   if (updated && body.status && statusMessages[body.status]) {
     const notif = statusMessages[body.status];
     await notifyCustomer(order.customerEmail, notif.title, notif.message, "/my-orders");
+    if (body.status === "delivered") {
+      const store = await getStoreById(order.storeId);
+      sendOrderDelivered(order.customerEmail, order.customerName, store?.name || "Store", id).catch(() => {});
+    }
   }
 
   if (updated && body.status === "ready" && order.status !== "ready") {

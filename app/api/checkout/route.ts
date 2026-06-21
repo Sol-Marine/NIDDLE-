@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/db";
 import { getPricingForAddress } from "@/app/lib/pricing";
+import { sendOrderConfirmation, sendNewOrderToStore } from "@/app/lib/email";
 
 interface CartItem {
   storeId: string;
@@ -121,6 +122,12 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString(),
       });
     }
+
+    // Send emails (non-blocking)
+    if (customerEmail) {
+      sendOrderConfirmation(customerEmail, customerName, store.name, orderId, subtotal + deliveryFee, estimatedDeliveryTime).catch(() => {});
+    }
+    sendNewOrderToStore(store.email as string, store.name, customerName, orderId, subtotal + deliveryFee).catch(() => {});
   }
 
   return NextResponse.json({

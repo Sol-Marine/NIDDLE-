@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/db";
+import { sendRiderAssigned } from "@/app/lib/email";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -50,6 +51,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         created_at: new Date().toISOString(),
       });
     }
+    sendRiderAssigned(customerEmail, order.customer_name, riderName, id).catch(() => {});
   }
 
   return NextResponse.json({ success: true });
