@@ -70,6 +70,7 @@ export default function Navbar() {
             <Link href="/track" className="hover:text-[#D4A24C] transition-colors">Track</Link>
             <Link href="/pricing" className="hover:text-[#D4A24C] transition-colors">Quote</Link>
             <Link href="/contact" className="hover:text-[#D4A24C] transition-colors">Contact</Link>
+            <Link href="/stores" className="hover:text-[#D4A24C] transition-colors">Stores</Link>
 
             {user && (
               <>
@@ -161,6 +162,7 @@ export default function Navbar() {
               { href: "/track", label: "Track Delivery" },
               { href: "/pricing", label: "Get a Quote" },
               { href: "/contact", label: "Contact Us" },
+              { href: "/stores", label: "Browse Stores" },
             ].map((link) => (
               <Link
                 key={link.href}

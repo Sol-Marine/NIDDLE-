@@ -123,6 +123,55 @@ export interface ContactMessage {
   createdAt: string;
 }
 
+export interface Store {
+  id: string;
+  ownerId: string;
+  name: string;
+  description: string;
+  category: string;
+  logo: string;
+  cover: string;
+  address: string;
+  phone: string;
+  email: string;
+  rating: number;
+  totalOrders: number;
+  isActive: boolean;
+  openingHours: string;
+  createdAt: string;
+}
+
+export interface StoreItem {
+  id: string;
+  storeId: string;
+  name: string;
+  description: string;
+  price: number;
+  category: string;
+  image: string;
+  isAvailable: boolean;
+  createdAt: string;
+}
+
+export interface StoreOrder {
+  id: string;
+  storeId: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string;
+  deliveryAddress: string;
+  items: { name: string; price: number; qty: number }[];
+  totalPrice: number;
+  deliveryFee: number;
+  riderName: string;
+  riderId?: number;
+  status: string;
+  specialInstructions: string;
+  preferredTime: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 /* ── Row ↔ Model Mappers ── */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -388,6 +437,119 @@ function toContactMessageRow(data: Partial<ContactMessage>): Record<string, unkn
   if (data.message !== undefined) row.message = data.message;
   if (data.read !== undefined) row.read = data.read;
   if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  return row;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromStoreRow(row: any): Store {
+  return {
+    id: row.id as string,
+    ownerId: row.owner_id as string,
+    name: row.name as string,
+    description: row.description as string,
+    category: row.category as string,
+    logo: row.logo as string,
+    cover: row.cover as string,
+    address: row.address as string,
+    phone: row.phone as string,
+    email: row.email as string,
+    rating: row.rating as number,
+    totalOrders: row.total_orders as number,
+    isActive: row.is_active as boolean,
+    openingHours: row.opening_hours as string,
+    createdAt: row.created_at as string,
+  };
+}
+
+function toStoreRow(data: Partial<Store>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (data.id !== undefined) row.id = data.id;
+  if (data.ownerId !== undefined) row.owner_id = data.ownerId;
+  if (data.name !== undefined) row.name = data.name;
+  if (data.description !== undefined) row.description = data.description;
+  if (data.category !== undefined) row.category = data.category;
+  if (data.logo !== undefined) row.logo = data.logo;
+  if (data.cover !== undefined) row.cover = data.cover;
+  if (data.address !== undefined) row.address = data.address;
+  if (data.phone !== undefined) row.phone = data.phone;
+  if (data.email !== undefined) row.email = data.email;
+  if (data.rating !== undefined) row.rating = data.rating;
+  if (data.totalOrders !== undefined) row.total_orders = data.totalOrders;
+  if (data.isActive !== undefined) row.is_active = data.isActive;
+  if (data.openingHours !== undefined) row.opening_hours = data.openingHours;
+  if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  return row;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromStoreItemRow(row: any): StoreItem {
+  return {
+    id: row.id as string,
+    storeId: row.store_id as string,
+    name: row.name as string,
+    description: row.description as string,
+    price: row.price as number,
+    category: row.category as string,
+    image: row.image as string,
+    isAvailable: row.is_available as boolean,
+    createdAt: row.created_at as string,
+  };
+}
+
+function toStoreItemRow(data: Partial<StoreItem>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (data.id !== undefined) row.id = data.id;
+  if (data.storeId !== undefined) row.store_id = data.storeId;
+  if (data.name !== undefined) row.name = data.name;
+  if (data.description !== undefined) row.description = data.description;
+  if (data.price !== undefined) row.price = data.price;
+  if (data.category !== undefined) row.category = data.category;
+  if (data.image !== undefined) row.image = data.image;
+  if (data.isAvailable !== undefined) row.is_available = data.isAvailable;
+  if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  return row;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function fromStoreOrderRow(row: any): StoreOrder {
+  return {
+    id: row.id as string,
+    storeId: row.store_id as string,
+    customerName: row.customer_name as string,
+    customerPhone: row.customer_phone as string,
+    customerEmail: row.customer_email as string,
+    deliveryAddress: row.delivery_address as string,
+    items: row.items as { name: string; price: number; qty: number }[],
+    totalPrice: row.total_price as number,
+    deliveryFee: row.delivery_fee as number,
+    riderName: row.rider_name as string,
+    riderId: row.rider_id as number | undefined,
+    status: row.status as string,
+    specialInstructions: row.special_instructions as string,
+    preferredTime: row.preferred_time as string,
+    createdAt: row.created_at as string,
+    updatedAt: row.updated_at as string,
+  };
+}
+
+function toStoreOrderRow(data: Partial<StoreOrder>): Record<string, unknown> {
+  const row: Record<string, unknown> = {};
+  if (data.id !== undefined) row.id = data.id;
+  if (data.storeId !== undefined) row.store_id = data.storeId;
+  if (data.customerName !== undefined) row.customer_name = data.customerName;
+  if (data.customerPhone !== undefined) row.customer_phone = data.customerPhone;
+  if (data.customerEmail !== undefined) row.customer_email = data.customerEmail;
+  if (data.deliveryAddress !== undefined) row.delivery_address = data.deliveryAddress;
+  if (data.items !== undefined) row.items = data.items;
+  if (data.totalPrice !== undefined) row.total_price = data.totalPrice;
+  if (data.deliveryFee !== undefined) row.delivery_fee = data.deliveryFee;
+  if (data.riderName !== undefined) row.rider_name = data.riderName;
+  if (data.riderId !== undefined) row.rider_id = data.riderId;
+  if (data.status !== undefined) row.status = data.status;
+  if (data.specialInstructions !== undefined) row.special_instructions = data.specialInstructions;
+  if (data.preferredTime !== undefined) row.preferred_time = data.preferredTime;
+  if (data.createdAt !== undefined) row.created_at = data.createdAt;
+  if (data.updatedAt !== undefined) row.updated_at = data.updatedAt;
   return row;
 }
 
@@ -737,4 +899,178 @@ export async function getContactMessages(): Promise<ContactMessage[]> {
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map(fromContactMessageRow);
+}
+
+/* ── Stores ── */
+
+export async function getStores(): Promise<Store[]> {
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreRow);
+}
+
+export async function getStoreById(id: string): Promise<Store | undefined> {
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) return undefined;
+  return data ? fromStoreRow(data) : undefined;
+}
+
+export async function getStoresByOwner(ownerId: string): Promise<Store[]> {
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreRow);
+}
+
+export async function createStore(data: Store): Promise<Store> {
+  const row = toStoreRow(data);
+  const { data: created, error } = await supabase
+    .from("stores")
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw error;
+  return fromStoreRow(created);
+}
+
+export async function updateStore(id: string, updates: Partial<Store>): Promise<Store | null> {
+  const row = toStoreRow(updates);
+  if (Object.keys(row).length === 0) {
+    return (await getStoreById(id)) ?? null;
+  }
+  const { data: updated, error } = await supabase
+    .from("stores")
+    .update(row)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return updated ? fromStoreRow(updated) : null;
+}
+
+/* ── Store Items ── */
+
+export async function getStoreItems(storeId: string): Promise<StoreItem[]> {
+  const { data, error } = await supabase
+    .from("store_items")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreItemRow);
+}
+
+export async function getStoreItemById(id: string): Promise<StoreItem | undefined> {
+  const { data, error } = await supabase
+    .from("store_items")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) return undefined;
+  return data ? fromStoreItemRow(data) : undefined;
+}
+
+export async function createStoreItem(data: StoreItem): Promise<StoreItem> {
+  const row = toStoreItemRow(data);
+  const { data: created, error } = await supabase
+    .from("store_items")
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw error;
+  return fromStoreItemRow(created);
+}
+
+export async function updateStoreItem(id: string, updates: Partial<StoreItem>): Promise<StoreItem | null> {
+  const row = toStoreItemRow(updates);
+  if (Object.keys(row).length === 0) {
+    return (await getStoreItemById(id)) ?? null;
+  }
+  const { data: updated, error } = await supabase
+    .from("store_items")
+    .update(row)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return updated ? fromStoreItemRow(updated) : null;
+}
+
+export async function deleteStoreItem(id: string): Promise<boolean> {
+  const { error } = await supabase
+    .from("store_items")
+    .delete()
+    .eq("id", id);
+  if (error) throw error;
+  return true;
+}
+
+/* ── Store Orders ── */
+
+export async function getStoreOrders(storeId: string): Promise<StoreOrder[]> {
+  const { data, error } = await supabase
+    .from("store_orders")
+    .select("*")
+    .eq("store_id", storeId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreOrderRow);
+}
+
+export async function getStoreOrderById(id: string): Promise<StoreOrder | undefined> {
+  const { data, error } = await supabase
+    .from("store_orders")
+    .select("*")
+    .eq("id", id)
+    .single();
+  if (error) return undefined;
+  return data ? fromStoreOrderRow(data) : undefined;
+}
+
+export async function getStoreOrdersByPhone(phone: string): Promise<StoreOrder[]> {
+  const cleaned = cleanPhone(phone);
+  const { data, error } = await supabase
+    .from("store_orders")
+    .select("*")
+    .ilike("customer_phone", `%${cleaned}%`)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map(fromStoreOrderRow);
+}
+
+export async function createStoreOrder(data: StoreOrder): Promise<StoreOrder> {
+  const row = toStoreOrderRow(data);
+  const { data: created, error } = await supabase
+    .from("store_orders")
+    .insert(row)
+    .select()
+    .single();
+  if (error) throw error;
+  return fromStoreOrderRow(created);
+}
+
+export async function updateStoreOrder(id: string, updates: Partial<StoreOrder>): Promise<StoreOrder | null> {
+  const row = toStoreOrderRow(updates);
+  if (Object.keys(row).length === 0) {
+    return (await getStoreOrderById(id)) ?? null;
+  }
+  const { data: updated, error } = await supabase
+    .from("store_orders")
+    .update(row)
+    .eq("id", id)
+    .select()
+    .single();
+  if (error) throw error;
+  return updated ? fromStoreOrderRow(updated) : null;
 }

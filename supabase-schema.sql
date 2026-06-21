@@ -132,3 +132,55 @@ INSERT INTO riders (id, name, rating, rides, badge, active) VALUES
   (3, 'Femi A.', 4.7, 198, 'Eco', true),
   (4, 'Zainab B.', 4.9, 415, 'Top Rider', true)
 ON CONFLICT (id) DO NOTHING;
+
+-- 10. Stores
+CREATE TABLE IF NOT EXISTS stores (
+  id TEXT PRIMARY KEY,
+  owner_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  category TEXT NOT NULL,
+  logo TEXT DEFAULT '',
+  cover TEXT DEFAULT '',
+  address TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  email TEXT NOT NULL,
+  rating NUMERIC DEFAULT 0,
+  total_orders INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  opening_hours TEXT DEFAULT '9:00 AM - 6:00 PM',
+  created_at TEXT NOT NULL
+);
+
+-- 11. Store Items
+CREATE TABLE IF NOT EXISTS store_items (
+  id TEXT PRIMARY KEY,
+  store_id TEXT NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  price NUMERIC NOT NULL,
+  category TEXT DEFAULT '',
+  image TEXT DEFAULT '',
+  is_available BOOLEAN DEFAULT true,
+  created_at TEXT NOT NULL
+);
+
+-- 12. Store Orders
+CREATE TABLE IF NOT EXISTS store_orders (
+  id TEXT PRIMARY KEY,
+  store_id TEXT NOT NULL REFERENCES stores(id) ON DELETE CASCADE,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_email TEXT DEFAULT '',
+  delivery_address TEXT NOT NULL,
+  items JSONB NOT NULL DEFAULT '[]',
+  total_price NUMERIC NOT NULL DEFAULT 0,
+  delivery_fee NUMERIC NOT NULL DEFAULT 2000,
+  rider_name TEXT DEFAULT '',
+  rider_id INTEGER,
+  status TEXT NOT NULL DEFAULT 'pending',
+  special_instructions TEXT DEFAULT '',
+  preferred_time TEXT DEFAULT '',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
