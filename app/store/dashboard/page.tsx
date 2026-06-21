@@ -10,11 +10,22 @@ const ORDER_STATUS: Record<string, { label: string; color: string; next: string[
   pending: { label: "Pending", color: "bg-yellow-100 text-yellow-700", next: ["confirmed", "cancelled"] },
   confirmed: { label: "Confirmed", color: "bg-blue-100 text-blue-700", next: ["preparing"] },
   preparing: { label: "Preparing", color: "bg-orange-100 text-orange-700", next: ["ready"] },
-  ready: { label: "Ready for Pickup", color: "bg-purple-100 text-purple-700", next: ["picked-up"] },
-  "picked-up": { label: "Picked Up", color: "bg-indigo-100 text-indigo-700", next: ["in-transit"] },
-  "in-transit": { label: "In Transit", color: "bg-cyan-100 text-cyan-700", next: ["delivered"] },
+  ready: { label: "Ready for Pickup", color: "bg-purple-100 text-purple-700", next: [] },
+  "picked-up": { label: "Picked Up", color: "bg-indigo-100 text-indigo-700", next: [] },
+  "in-transit": { label: "In Transit", color: "bg-cyan-100 text-cyan-700", next: [] },
   delivered: { label: "Delivered", color: "bg-green-100 text-green-700", next: [] },
   cancelled: { label: "Cancelled", color: "bg-red-100 text-red-700", next: [] },
+};
+
+const RIDER_STATUS: Record<string, { label: string; color: string; icon: string }> = {
+  pending: { label: "Waiting for rider", color: "bg-gray-100 text-gray-600", icon: "⏳" },
+  assigned: { label: "Rider assigned", color: "bg-blue-100 text-blue-700", icon: "🚴" },
+  accepted: { label: "Rider accepted", color: "bg-green-100 text-green-700", icon: "✅" },
+  "heading-to-store": { label: "Rider heading to store", color: "bg-yellow-100 text-yellow-700", icon: "📍" },
+  "at-store": { label: "Rider at store", color: "bg-orange-100 text-orange-700", icon: "🏪" },
+  "picked-up": { label: "Order picked up", color: "bg-purple-100 text-purple-700", icon: "📦" },
+  "in-transit": { label: "Out for delivery", color: "bg-indigo-100 text-indigo-700", icon: "🚚" },
+  delivered: { label: "Delivered", color: "bg-green-100 text-green-700", icon: "✅" },
 };
 
 export default function StoreDashboardPage() {
@@ -188,7 +199,14 @@ export default function StoreDashboardPage() {
                         <p className="font-bold text-gray-900">{order.customerName}</p>
                         <p className="text-xs text-gray-500">{order.customerPhone} · {order.id}</p>
                       </div>
-                      <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${statusInfo.color}`}>{statusInfo.label}</span>
+                      <div className="flex flex-wrap gap-2">
+                        <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${statusInfo.color}`}>{statusInfo.label}</span>
+                        {order.riderStatus && order.riderStatus !== "pending" && (
+                          <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${RIDER_STATUS[order.riderStatus]?.color || "bg-gray-100 text-gray-600"}`}>
+                            {RIDER_STATUS[order.riderStatus]?.icon} {RIDER_STATUS[order.riderStatus]?.label || order.riderStatus}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-3 mb-3 text-sm">
                       {order.items.map((it, i) => (

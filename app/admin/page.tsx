@@ -84,6 +84,16 @@ export default function AdminPage() {
       .finally(() => setLoading(false));
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    const runJarvis = () => {
+      fetch("/api/jarvis", { method: "POST" }).catch(() => {});
+    };
+    runJarvis();
+    const interval = setInterval(runJarvis, 10000);
+    return () => clearInterval(interval);
+  }, [user]);
+
   const advanceStatus = async (id: string, currentStatus: string) => {
     const next = STATUS_OPTIONS[currentStatus];
     if (!next || next.length === 0) return;

@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
     totalPrice: Number(totalPrice) || 0,
     deliveryFee: Number(deliveryFee) || 2000,
     riderName: "",
+    riderStatus: "pending",
     status: "pending",
     specialInstructions: specialInstructions || "",
     preferredTime: preferredTime || "",

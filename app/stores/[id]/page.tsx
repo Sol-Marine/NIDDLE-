@@ -4,15 +4,28 @@ import { useState, useEffect, use } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
 import ChatBox from "../../components/ChatBox";
+import { useCart } from "../../lib/cart-context";
 import type { Store, StoreItem, StoreOrder, StoreReview } from "../../lib/db";
+
+interface PricingInfo {
+  distance: number;
+  baseFee: number;
+  distanceFee: number;
+  surgeMultiplier: number;
+  surgeFee: number;
+  total: number;
+  estimatedMinutes: number;
+  demandLevel: string;
+}
 
 export default function StoreDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { addItem, removeItem, clearStore, getStoreItems } = useCart();
+  const storeCartItems = getStoreItems(id);
   const [store, setStore] = useState<Store | null>(null);
   const [user, setUser] = useState<{ id: string; name: string; role: string } | null>(null);
   const [items, setItems] = useState<StoreItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [cart, setCart] = useState<{ item: StoreItem; qty: number }[]>([]);
   const [showCheckout, setShowCheckout] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<StoreOrder | null>(null);
   const [name, setName] = useState("");
@@ -29,6 +42,8 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [pricing, setPricing] = useState<PricingInfo | null>(null);
+  const [pricingLoading, setPricingLoading] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -49,50 +64,83 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
     }).catch(() => setLoading(false));
   }, [id]);
 
+  const fetchPricing = async (deliveryAddr: string) => {
+    if (!store || !deliveryAddr) return;
+    setPricingLoading(true);
+    try {
+      const res = await fetch("/api/pricing/calculate");
+      const data = await res.json();
+      setPricing({
+        distance: 5,
+        baseFee: data.baseFee,
+        distanceFee: 0,
+        surgeMultiplier: data.surgeMultiplier,
+        surgeFee: 0,
+        total: data.baseFee,
+        estimatedMinutes: 30,
+        demandLevel: data.demandLevel,
+      });
+    } catch {
+      setPricing({ distance: 5, baseFee: 2000, distanceFee: 0, surgeMultiplier: 1, surgeFee: 0, total: 2000, estimatedMinutes: 30, demandLevel: "normal" });
+    } finally {
+      setPricingLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (address && store) fetchPricing(address);
+  }, [address, store]);
+
   const addToCart = (item: StoreItem) => {
-    setCart((prev) => {
-      const existing = prev.find((c) => c.item.id === item.id);
-      if (existing) return prev.map((c) => c.item.id === item.id ? { ...c, qty: c.qty + 1 } : c);
-      return [...prev, { item, qty: 1 }];
+    addItem({
+      storeId: id,
+      storeName: store?.name || "Store",
+      itemId: item.id,
+      name: item.name,
+      price: item.price,
+      image: item.image,
     });
   };
 
   const removeFromCart = (itemId: string) => {
-    setCart((prev) => {
-      const existing = prev.find((c) => c.item.id === itemId);
-      if (!existing) return prev;
-      if (existing.qty === 1) return prev.filter((c) => c.item.id !== itemId);
-      return prev.map((c) => c.item.id === itemId ? { ...c, qty: c.qty - 1 } : c);
-    });
+    removeItem(id, itemId);
   };
 
-  const cartTotal = cart.reduce((sum, c) => sum + c.item.price * c.qty, 0);
-  const deliveryFee = 2000;
+  const cartTotal = storeCartItems.reduce((sum, c) => sum + c.price * c.qty, 0);
+  const deliveryFee = pricing?.total ?? 2000;
   const grandTotal = cartTotal + deliveryFee;
 
   const placeOrder = async () => {
-    if (!name || !phone || !address || !cart.length) return;
+    if (!name || !phone || !address || !storeCartItems.length) return;
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/stores/${id}/orders`, {
+      const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          storeId: id,
+          items: storeCartItems.map((c) => ({
+            storeId: id,
+            storeName: store?.name,
+            name: c.name,
+            price: c.price,
+            qty: c.qty,
+          })),
           customerName: name,
           customerPhone: phone,
           customerEmail: email,
           deliveryAddress: address,
-          items: cart.map((c) => ({ name: c.item.name, price: c.item.price, qty: c.qty })),
-          totalPrice: cartTotal,
-          deliveryFee,
           specialInstructions: instructions,
           preferredTime,
+          paymentMethod: "card",
         }),
       });
-      const order = await res.json();
-      setOrderSuccess(order);
-      setCart([]);
+      const data = await res.json();
+      if (data.success) {
+        setOrderSuccess(data.orders?.[0] || { id: data.orders?.[0]?.orderId, totalPrice: cartTotal, deliveryFee });
+      } else {
+        alert(data.error || "Failed to place order");
+      }
+      clearStore(id);
       setShowCheckout(false);
     } catch {
       alert("Failed to place order");
@@ -158,16 +206,17 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
           <div className="max-w-lg mx-auto text-center bg-white rounded-3xl p-10 shadow-xl">
             <div className="text-6xl mb-4">✅</div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Placed!</h1>
-            <p className="text-gray-500 text-sm mb-6">Your order from <strong>{store.name}</strong> has been received.</p>
+            <p className="text-gray-500 text-sm mb-6">Your order from <strong>{store?.name}</strong> has been received.</p>
             <div className="bg-gray-50 rounded-2xl p-4 text-left mb-6">
               <p className="text-sm text-gray-500">Order ID</p>
-              <p className="font-mono font-bold text-[#5A432C]">{orderSuccess.id}</p>
-              <p className="text-sm text-gray-500 mt-2">Total</p>
-              <p className="font-bold text-lg">₦{grandTotal.toLocaleString()}</p>
-              <p className="text-sm text-gray-500 mt-2">Status</p>
-              <span className="inline-block bg-yellow-100 text-yellow-700 text-xs font-semibold px-3 py-1 rounded-full">Pending</span>
+              <p className="font-mono font-bold text-[#5A432C]">{orderSuccess.id || "Processing"}</p>
+              <p className="text-sm text-gray-500 mt-2">Estimated Delivery</p>
+              <p className="font-bold text-lg">{pricing?.estimatedMinutes ?? 30} minutes</p>
+              {pricing && pricing.surgeMultiplier > 1 && (
+                <p className="text-xs text-orange-600 mt-1">🔥 Surge pricing active ({pricing.surgeMultiplier}x)</p>
+              )}
             </div>
-            <p className="text-xs text-gray-400 mb-6">The store will confirm your order shortly. A rider will be assigned for delivery.</p>
+            <p className="text-xs text-gray-400 mb-6">A rider will be assigned shortly. You&apos;ll be notified when your order is picked up.</p>
             <button onClick={() => setOrderSuccess(null)} className="bg-[#5A432C] text-white px-8 py-3 rounded-2xl font-semibold hover:bg-[#4a3520] transition">
               Continue Shopping
             </button>
@@ -243,29 +292,51 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
             )}
           </div>
 
-          {cart.length > 0 && (
+          {storeCartItems.length > 0 && (
             <div className="lg:w-96">
               <div className="bg-white rounded-3xl p-6 shadow-lg border border-gray-100 sticky top-28">
-                <h2 className="text-lg font-bold text-gray-900 mb-4">Your Order</h2>
+                <h2 className="text-lg font-bold text-gray-900 mb-4">Your Order ({storeCartItems.length} items)</h2>
                 <div className="space-y-3 mb-4 max-h-60 overflow-y-auto">
-                  {cart.map((c) => (
-                    <div key={c.item.id} className="flex items-center gap-3">
+                  {storeCartItems.map((c) => (
+                    <div key={c.itemId} className="flex items-center gap-3">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{c.item.name}</p>
-                        <p className="text-xs text-gray-500">₦{c.item.price.toLocaleString()} × {c.qty}</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                        <p className="text-xs text-gray-500">₦{c.price.toLocaleString()} × {c.qty}</p>
                       </div>
-                      <span className="text-sm font-bold text-[#5A432C]">₦{(c.item.price * c.qty).toLocaleString()}</span>
+                      <span className="text-sm font-bold text-[#5A432C]">₦{(c.price * c.qty).toLocaleString()}</span>
                       <div className="flex items-center gap-1">
-                        <button onClick={() => removeFromCart(c.item.id)} className="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-bold hover:bg-gray-200">-</button>
+                        <button onClick={() => removeFromCart(c.itemId)} className="w-7 h-7 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center text-sm font-bold hover:bg-gray-200">-</button>
                         <span className="text-sm font-semibold w-5 text-center">{c.qty}</span>
-                        <button onClick={() => addToCart(c.item)} className="w-7 h-7 rounded-full bg-[#5A432C] text-white flex items-center justify-center text-sm font-bold hover:bg-[#4a3520]">+</button>
+                        <button onClick={() => addItem({ storeId: id, storeName: store?.name || "", itemId: c.itemId, name: c.name, price: c.price })} className="w-7 h-7 rounded-full bg-[#5A432C] text-white flex items-center justify-center text-sm font-bold hover:bg-[#4a3520]">+</button>
                       </div>
                     </div>
                   ))}
                 </div>
                 <div className="border-t border-gray-100 pt-3 space-y-1 text-sm">
                   <div className="flex justify-between"><span className="text-gray-500">Subtotal</span><span className="font-semibold">₦{cartTotal.toLocaleString()}</span></div>
-                  <div className="flex justify-between"><span className="text-gray-500">Delivery</span><span className="font-semibold">₦{deliveryFee.toLocaleString()}</span></div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-500">Delivery</span>
+                    <div className="text-right">
+                      {pricingLoading ? (
+                        <span className="text-xs text-gray-400">Calculating...</span>
+                      ) : (
+                        <>
+                          <span className="font-semibold">₦{deliveryFee.toLocaleString()}</span>
+                          {pricing && pricing.surgeMultiplier > 1 && (
+                            <span className="text-xs text-orange-600 block">{pricing.surgeMultiplier}x surge</span>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {pricing && (
+                    <div className="flex justify-between text-xs text-gray-400">
+                      <span>📍 {pricing.distance} km • ~{pricing.estimatedMinutes} min</span>
+                      <span className={pricing.demandLevel !== "normal" ? "text-orange-500 font-semibold" : ""}>
+                        {pricing.demandLevel === "normal" ? "Normal demand" : `${pricing.demandLevel} demand`}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-base font-bold pt-2 border-t border-gray-100"><span>Total</span><span className="text-[#D4A24C]">₦{grandTotal.toLocaleString()}</span></div>
                 </div>
                 <button onClick={() => setShowCheckout(true)} className="w-full mt-4 bg-[#5A432C] text-white py-3 rounded-2xl font-bold hover:bg-[#4a3520] transition">
@@ -319,7 +390,7 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
                 <textarea value={instructions} onChange={(e) => setInstructions(e.target.value)} placeholder="Any special requests?" rows={2} className="w-full border-2 border-gray-100 rounded-xl p-3 text-sm focus:border-[#D4A24C] outline-none resize-none" />
               </div>
               <div className="bg-gray-50 rounded-xl p-4">
-                <div className="flex justify-between text-sm mb-1"><span className="text-gray-500">Items ({cart.length})</span><span>₦{cartTotal.toLocaleString()}</span></div>
+                <div className="flex justify-between text-sm mb-1"><span className="text-gray-500">Items ({storeCartItems.length})</span><span>₦{cartTotal.toLocaleString()}</span></div>
                 <div className="flex justify-between text-sm mb-1"><span className="text-gray-500">Delivery</span><span>₦{deliveryFee.toLocaleString()}</span></div>
                 <div className="flex justify-between font-bold text-lg border-t border-gray-200 pt-2 mt-2"><span>Total</span><span className="text-[#D4A24C]">₦{grandTotal.toLocaleString()}</span></div>
               </div>

@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
+import { useCart } from "../lib/cart-context";
 
 export default function Navbar() {
+  const { totalItems, storeCount } = useCart();
   const [user, setUser] = useState<{ name: string; role?: string } | null>(null);
   const [notifCount, setNotifCount] = useState(0);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -72,6 +74,15 @@ export default function Navbar() {
             <Link href="/contact" className="hover:text-[#D4A24C] transition-colors">Contact</Link>
             <Link href="/stores" className="hover:text-[#D4A24C] transition-colors">Stores</Link>
             <Link href="/rider/dashboard" className="hover:text-[#D4A24C] transition-colors">Ride</Link>
+
+            {totalItems > 0 && (
+              <Link href="/stores" className="relative hover:text-[#D4A24C] transition-colors">
+                🛒
+                <span className="absolute -top-2 -right-3 bg-[#D4A24C] text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {totalItems}
+                </span>
+              </Link>
+            )}
 
             {user && (
               <>
@@ -182,6 +193,9 @@ export default function Navbar() {
                 className="block py-3 px-4 text-sm font-medium text-gray-700 hover:bg-[#FFF8F0] hover:text-[#D4A24C] rounded-xl transition"
               >
                 {link.label}
+                {link.href === "/stores" && totalItems > 0 && (
+                  <span className="ml-2 bg-[#D4A24C] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{totalItems} items</span>
+                )}
               </Link>
             ))}
 

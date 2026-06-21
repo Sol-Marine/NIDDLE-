@@ -165,6 +165,7 @@ export interface StoreOrder {
   deliveryFee: number;
   riderName: string;
   riderId?: number;
+  riderStatus: string;
   status: string;
   specialInstructions: string;
   preferredTime: string;
@@ -545,6 +546,7 @@ function fromStoreOrderRow(row: any): StoreOrder {
     deliveryFee: row.delivery_fee as number,
     riderName: row.rider_name as string,
     riderId: row.rider_id as number | undefined,
+    riderStatus: (row.rider_status as string) || "pending",
     status: row.status as string,
     specialInstructions: row.special_instructions as string,
     preferredTime: row.preferred_time as string,
@@ -566,6 +568,7 @@ function toStoreOrderRow(data: Partial<StoreOrder>): Record<string, unknown> {
   if (data.deliveryFee !== undefined) row.delivery_fee = data.deliveryFee;
   if (data.riderName !== undefined) row.rider_name = data.riderName;
   if (data.riderId !== undefined) row.rider_id = data.riderId;
+  if (data.riderStatus !== undefined) row.rider_status = data.riderStatus;
   if (data.status !== undefined) row.status = data.status;
   if (data.specialInstructions !== undefined) row.special_instructions = data.specialInstructions;
   if (data.preferredTime !== undefined) row.preferred_time = data.preferredTime;

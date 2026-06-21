@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ChatBot from "./components/ChatBot";
+import CartWrapper from "./components/CartWrapper";
 
 export const metadata: Metadata = {
   title: "NIDDLE | Fast Bicycle Delivery in Lagos",
@@ -16,7 +17,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
-        {children}
+        <CartWrapper>
+          {children}
+        </CartWrapper>
         <ChatBot />
       </body>
     </html>
