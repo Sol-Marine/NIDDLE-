@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function RiderSection() {
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-      <div className="max-w-[1400px] mx-auto px-8">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+    <section className="relative overflow-hidden bg-white py-16 md:py-24">
+      <div className="max-w-[1400px] mx-auto px-5 md:px-8">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-16 items-center">
 
           <div className="relative order-2 md:order-1">
             <div className="absolute -inset-6 bg-gradient-to-r from-[#D4A24C]/10 to-[#C2533D]/5 rounded-[3rem] blur-2xl" />
@@ -52,7 +52,7 @@ export default function RiderSection() {
             </div>
 
             <Link href="/send-package">
-              <button className="mt-10 bg-[#5A432C] text-white px-10 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95">
+              <button className="mt-10 bg-[#5A432C] text-white px-8 md:px-10 py-3 md:py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 active:scale-95">
                 Send With Us →
               </button>
             </Link>

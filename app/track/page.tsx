@@ -94,7 +94,7 @@ export default function TrackPage() {
           <span className="text-[#D4A24C] font-semibold text-sm uppercase tracking-widest">
             Track Your Delivery
           </span>
-          <h1 className="text-5xl font-extrabold text-white mt-3 mb-4">
+          <h1 className="text-3xl sm:text-5xl font-extrabold text-white mt-3 mb-4">
             Where&apos;s your package?
           </h1>
           <p className="text-gray-400 max-w-lg mx-auto mb-10">
@@ -129,7 +129,7 @@ export default function TrackPage() {
       {searched && (
         <section className="max-w-4xl mx-auto px-6 -mt-10 relative z-10 pb-24">
           {!delivery ? (
-            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-12 text-center">
+            <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 md:p-12 text-center">
               <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
                 <span className="text-3xl">🔍</span>
               </div>
@@ -154,7 +154,7 @@ export default function TrackPage() {
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <p className="text-sm text-gray-500 font-medium">Tracking ID</p>
-                    <p className="text-2xl font-extrabold text-[#5A432C] tracking-wide">
+                    <p className="text-2xl font-extrabold text-[#5A432C] tracking-wide break-all">
                       {delivery.id}
                     </p>
                   </div>
@@ -428,7 +428,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between">
       <span className="text-sm text-gray-500">{label}</span>
-      <span className="text-sm font-semibold text-gray-900 text-right max-w-[60%]">{value}</span>
+      <span className="text-sm font-semibold text-gray-900 text-right max-w-[60%] truncate">{value}</span>
     </div>
   );
 }

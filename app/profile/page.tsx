@@ -193,11 +193,11 @@ export default function ProfilePage() {
       <section className="max-w-6xl mx-auto px-6 py-12">
         {/* Header */}
         <div className="flex items-center gap-5 mb-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[#D4A24C] to-[#C2533D] flex items-center justify-center text-3xl text-white font-bold shadow-lg">
+          <div className="w-14 h-14 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-[#D4A24C] to-[#C2533D] flex items-center justify-center text-2xl md:text-3xl text-white font-bold shadow-lg">
             {user.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <h1 className="text-3xl font-extrabold">{user.name}</h1>
+            <h1 className="text-2xl md:text-3xl font-extrabold">{user.name}</h1>
             <p className="text-gray-500 text-sm">{user.email}</p>
             <p className="text-xs text-gray-400 mt-1">Member since {user.createdAt}</p>
           </div>
@@ -220,7 +220,7 @@ export default function ProfilePage() {
 
         {/* Profile Tab */}
         {tab === "profile" && (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 max-w-2xl">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 md:p-8 max-w-2xl">
             <h2 className="text-xl font-bold mb-6">Edit Profile</h2>
             <div className="space-y-5">
               <div>
@@ -287,7 +287,7 @@ export default function ProfilePage() {
             )}
 
             {addresses.map((addr) => (
-              <div key={addr.id} className={`bg-white rounded-2xl p-6 border shadow-sm flex items-center justify-between ${addr.isDefault ? "border-[#D4A24C]" : "border-gray-100"}`}>
+              <div key={addr.id} className={`bg-white rounded-2xl p-6 border shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 ${addr.isDefault ? "border-[#D4A24C]" : "border-gray-100"}`}>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold">{addr.label}</span>
@@ -326,7 +326,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-bold">{d.id}</p>
-                    <p className="text-sm text-gray-500">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
+                    <p className="text-sm text-gray-500 truncate">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
                     <p className="text-xs text-gray-400 mt-1">{d.createdAt}</p>
                   </div>
                   <div className="text-right">
@@ -354,7 +354,7 @@ export default function ProfilePage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-bold text-sm">{d.id}</p>
-                      <p className="text-xs text-gray-500">{d.pickupAddress} → {d.deliveryAddress}</p>
+                      <p className="text-xs text-gray-500 truncate">{d.pickupAddress} → {d.deliveryAddress}</p>
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-semibold px-3 py-1 rounded-full bg-green-100 text-green-700">Delivered</span>
@@ -419,7 +419,7 @@ export default function ProfilePage() {
 
         {/* Settings Tab */}
         {tab === "settings" && (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8 max-w-2xl">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 md:p-8 max-w-2xl">
             <h2 className="text-xl font-bold mb-6">Notification Settings</h2>
             <div className="space-y-5">
               {[

@@ -140,7 +140,7 @@ export default function SendPackagePage() {
 
           <div className="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
             {/* Desktop tabs */}
-            <div className="hidden sm:flex border-b border-gray-100">
+            <div className="hidden md:flex border-b border-gray-100">
               {steps.map((s, i) => (
                 <button
                   key={s.label}
@@ -165,7 +165,7 @@ export default function SendPackagePage() {
             </div>
 
             {/* Mobile step indicator */}
-            <div className="sm:hidden border-b border-gray-100 px-4 py-3">
+            <div className="md:hidden border-b border-gray-100 px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{steps[step].emoji}</span>
@@ -656,12 +656,12 @@ function SummaryCard({
 }) {
   return (
     <div className="bg-gray-50 rounded-2xl p-5 flex items-center gap-4">
-      <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm">
+      <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-xl shadow-sm shrink-0">
         {emoji}
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-xs text-gray-500 font-medium">{label}</p>
-        <p className="font-semibold text-gray-900 text-sm">{value}</p>
+        <p className="font-semibold text-gray-900 text-sm truncate">{value}</p>
       </div>
     </div>
   );
@@ -669,9 +669,9 @@ function SummaryCard({
 
 function ReceiptRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex justify-between">
-      <span className="text-gray-400">{label}</span>
-      <span className="font-medium text-right">{value}</span>
+    <div className="flex justify-between gap-3">
+      <span className="text-gray-400 shrink-0">{label}</span>
+      <span className="font-medium text-right min-w-0 truncate">{value}</span>
     </div>
   );
 }

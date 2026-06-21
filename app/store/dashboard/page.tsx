@@ -129,7 +129,7 @@ export default function StoreDashboardPage() {
                 <h1 className="text-2xl font-bold text-gray-900">{store.name}</h1>
                 <span className="text-sm text-[#D4A24C] font-semibold">{store.category}</span>
               </div>
-              <div className="flex gap-4 text-sm">
+              <div className="flex flex-wrap gap-2 md:gap-4 text-sm">
                 <div className="bg-yellow-50 text-yellow-700 px-4 py-2 rounded-xl"><span className="font-bold">{pendingOrders.length}</span> Pending</div>
                 <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-xl"><span className="font-bold">{activeOrders.length}</span> Active</div>
                 <div className="bg-green-50 text-green-700 px-4 py-2 rounded-xl"><span className="font-bold">{completedOrders.length}</span> Completed</div>

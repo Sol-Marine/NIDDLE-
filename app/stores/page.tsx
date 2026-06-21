@@ -41,7 +41,7 @@ export default function StoresPage() {
     <main className="min-h-screen bg-[#faf7f2]">
       <Navbar />
 
-      <section className="pt-32 pb-8 px-6">
+      <section className="pt-24 md:pt-32 pb-8 px-6">
         <div className="max-w-7xl mx-auto text-center">
           <span className="inline-block text-sm font-semibold text-[#D4A24C] uppercase tracking-widest mb-3">Marketplace</span>
           <h1 className="text-4xl md:text-5xl font-bold text-[#5A432C] mb-4">Browse Stores</h1>
@@ -123,7 +123,7 @@ export default function StoresPage() {
                       </div>
                       <p className="text-gray-500 text-sm line-clamp-2 mb-3">{store.description || "No description"}</p>
                       <div className="flex items-center justify-between text-xs text-gray-400">
-                        <span className="flex items-center gap-1">📍 {store.address}</span>
+                        <span className="flex items-center gap-1 truncate">📍 {store.address}</span>
                         <span>{store.totalOrders} orders</span>
                       </div>
                     </div>

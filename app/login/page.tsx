@@ -113,10 +113,10 @@ function LoginInner() {
       </div>
 
       {/* Right — Form Panel */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gradient-to-br from-[#faf7f2] via-white to-[#FFF8F0]">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-8 bg-gradient-to-br from-[#faf7f2] via-white to-[#FFF8F0]">
         <div className="w-full max-w-md animate-fade-in-up">
           {/* Mobile brand */}
-          <div className="lg:hidden text-center mb-10">
+          <div className="lg:hidden text-center mb-6 md:mb-10">
             <Link href="/">
               <h1 className="text-3xl font-extrabold text-[#5A432C]">NIDDLE</h1>
             </Link>

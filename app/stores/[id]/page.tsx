@@ -152,7 +152,7 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
                   <h1 className="text-3xl font-bold text-gray-900 mb-1">{store.name}</h1>
                   <span className="text-sm text-[#D4A24C] font-semibold bg-[#D4A24C]/10 px-3 py-1 rounded-full">{store.category}</span>
                 </div>
-                <div className="flex items-center gap-4 text-sm text-gray-500">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm text-gray-500">
                   {store.rating > 0 && <span className="flex items-center gap-1"><span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}</span>}
                   <span>📍 {store.address}</span>
                   <span>🕐 {store.openingHours}</span>
@@ -242,7 +242,7 @@ export default function StoreDetailPage({ params }: { params: Promise<{ id: stri
                 <label className="block text-sm font-semibold text-gray-700 mb-1">Your Name *</label>
                 <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full border-2 border-gray-100 rounded-xl p-3 text-sm focus:border-[#D4A24C] outline-none" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Phone *</label>
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08012345678" className="w-full border-2 border-gray-100 rounded-xl p-3 text-sm focus:border-[#D4A24C] outline-none" />

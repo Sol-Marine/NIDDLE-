@@ -128,7 +128,7 @@ export default function AdminPage() {
       <section className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-extrabold">Dashboard</h1>
+            <h1 className="text-3xl md:text-4xl font-extrabold">Dashboard</h1>
             <p className="text-gray-500 text-sm mt-1">Welcome back, {user.name}</p>
           </div>
           <button
@@ -163,12 +163,12 @@ export default function AdminPage() {
           </div>
         )}
 
-        <div className="flex gap-2 mb-8 border-b border-gray-200 pb-4">
+        <div className="flex gap-2 mb-8 border-b border-gray-200 pb-4 overflow-x-auto">
           {(["overview", "deliveries", "requests", "riders"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all ${
+              className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all whitespace-nowrap ${
                 tab === t ? "bg-[#5A432C] text-white shadow-md" : "text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -188,7 +188,7 @@ export default function AdminPage() {
                 <div key={d.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
                   <div>
                     <p className="font-semibold">{d.id}</p>
-                    <p className="text-sm text-gray-500">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
+                    <p className="text-sm text-gray-500 truncate">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
                   </div>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100 text-gray-600"}`}>
                     {d.status.replace(/-/g, " ")}
