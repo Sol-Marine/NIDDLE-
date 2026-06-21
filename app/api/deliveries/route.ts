@@ -6,7 +6,7 @@ import { rateLimit } from "@/app/lib/rate-limit";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const phone = searchParams.get("phone");
-  const data = phone ? getDeliveriesByPhone(phone) : getDeliveries();
+  const data = phone ? await getDeliveriesByPhone(phone) : await getDeliveries();
   return Response.json(data);
 }
 
@@ -27,6 +27,6 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const delivery = createDelivery(body);
+  const delivery = await createDelivery(body);
   return Response.json(delivery, { status: 201 });
 }

@@ -5,34 +5,34 @@ import { getSessionUser } from "@/app/lib/auth";
 export async function GET(request: NextRequest) {
   const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (user.role !== "admin") return Response.json({ error: "Forbidden" }, { status: 403 });
+  if (user.role !== "admin" && user.role !== "staff") return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const { searchParams } = new URL(request.url);
   const type = searchParams.get("type") || "overview";
 
   if (type === "deliveries") {
-    return Response.json(getDeliveries());
+    return Response.json(await getDeliveries());
   }
   if (type === "requests") {
-    return Response.json(getReceiveRequests());
+    return Response.json(await getReceiveRequests());
   }
   if (type === "riders") {
-    return Response.json(getRiders());
+    return Response.json(await getRiders());
   }
 
-  const deliveries = getDeliveries();
+  const deliveries = await getDeliveries();
   return Response.json({
     totalDeliveries: deliveries.length,
     activeDeliveries: deliveries.filter((d) => d.status !== "delivered").length,
     deliveredToday: deliveries.filter((d) => d.status === "delivered" && d.deliveredAt?.includes(new Date().toLocaleDateString())).length,
-    pendingRequests: getReceiveRequests().filter((r) => r.status === "pending").length,
+    pendingRequests: (await getReceiveRequests()).filter((r) => r.status === "pending").length,
   });
 }
 
 export async function POST(request: NextRequest) {
   const user = await getSessionUser();
   if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
-  if (user.role !== "admin") return Response.json({ error: "Forbidden" }, { status: 403 });
+  if (user.role !== "admin" && user.role !== "staff") return Response.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
   const { id, status, riderName } = body;
@@ -43,10 +43,10 @@ export async function POST(request: NextRequest) {
   if (status) updates.status = status;
   if (riderName) updates.riderName = riderName;
 
-  const updated = updateDelivery(id, updates);
+  const updated = await updateDelivery(id, updates);
   if (!updated) return Response.json({ error: "Delivery not found" }, { status: 404 });
 
-  createNotification({
+  await createNotification({
     id: "notif-" + crypto.randomUUID(),
     userId: user.id,
     title: "Delivery Updated",

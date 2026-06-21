@@ -7,11 +7,11 @@ export async function GET(request: NextRequest) {
   const riderId = searchParams.get("riderId");
 
   if (riderId) {
-    const loc = getRiderLocation(parseInt(riderId));
+    const loc = await getRiderLocation(parseInt(riderId));
     return Response.json(loc || null);
   }
 
-  return Response.json(getAllRiderLocations());
+  return Response.json(await getAllRiderLocations());
 }
 
 export async function POST(request: NextRequest) {
@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Invalid coordinates" }, { status: 400 });
   }
 
-  const location = upsertRiderLocation({
+  const location = await upsertRiderLocation({
     riderId: body.riderId,
     riderName: body.riderName || "Rider",
     lat,

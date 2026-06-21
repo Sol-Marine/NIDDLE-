@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Name, email, and message are required" }, { status: 400 });
   }
 
-  const msg = createContactMessage({
+  const msg = await createContactMessage({
     id: "msg-" + crypto.randomUUID(),
     name,
     email,

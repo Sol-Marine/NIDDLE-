@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import bcrypt from "bcryptjs";
-import { getUserByEmail } from "@/app/lib/db";
-import { resetTokens } from "../forgot-password/route";
+import { supabase, updateUser } from "@/app/lib/db";
 
 export async function POST(request: NextRequest) {
   const { token, password } = await request.json();
@@ -12,20 +11,18 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "Password must be at least 6 characters" }, { status: 400 });
   }
 
-  const entry = resetTokens.get(token);
-  if (!entry || Date.now() > entry.expiresAt) {
+  const { data: user } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email_verify_token", token)
+    .single();
+
+  if (!user) {
     return Response.json({ error: "Invalid or expired token" }, { status: 400 });
   }
 
-  const user = getUserByEmail(entry.email);
-  if (!user) {
-    return Response.json({ error: "User not found" }, { status: 404 });
-  }
-
   const hashed = await bcrypt.hash(password, 10);
-  const { updateUser } = await import("@/app/lib/db");
-  updateUser(user.id, { password: hashed });
+  await updateUser(user.id, { password: hashed, emailVerifyToken: undefined });
 
-  resetTokens.delete(token);
   return Response.json({ ok: true });
 }

@@ -1,5 +1,9 @@
-import Image from "next/image";
+"use client";
+
+import dynamic from "next/dynamic";
 import { LAGOS_ZONES } from "@/app/lib/constants";
+
+const LagosCoverageMap = dynamic(() => import("./LagosCoverageMap"), { ssr: false });
 
 export default function Coverage() {
   return (
@@ -22,14 +26,9 @@ export default function Coverage() {
         <div className="grid lg:grid-cols-5 gap-5 md:gap-8 items-start">
           <div className="lg:col-span-3 relative group">
             <div className="relative h-[280px] md:h-[420px] rounded-3xl overflow-hidden shadow-2xl">
-              <Image
-                src="/map-image.jpg"
-                alt="Lagos Coverage Map"
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a2e]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8">
+              <LagosCoverageMap />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#1a1a2e]/70 via-transparent to-transparent pointer-events-none" />
+              <div className="absolute bottom-0 left-0 right-0 p-5 md:p-8 pointer-events-none">
                 <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">
                   Lagos Island to Mainland
                 </h3>

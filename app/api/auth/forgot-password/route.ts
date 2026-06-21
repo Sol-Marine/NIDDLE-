@@ -1,9 +1,7 @@
 import { NextRequest } from "next/server";
-import { getUserByEmail } from "@/app/lib/db";
+import { getUserByEmail, supabase } from "@/app/lib/db";
 import { rateLimit } from "@/app/lib/rate-limit";
 import crypto from "crypto";
-
-const resetTokens = new Map<string, { email: string; expiresAt: number }>();
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
@@ -14,15 +12,17 @@ export async function POST(request: NextRequest) {
   const { email } = await request.json();
   if (!email) return Response.json({ error: "Email required" }, { status: 400 });
 
-  const user = getUserByEmail(email);
+  const user = await getUserByEmail(email);
 
   if (user) {
     const token = crypto.randomBytes(32).toString("hex");
-    resetTokens.set(token, { email, expiresAt: Date.now() + 3600_000 });
+    const expiresAt = new Date(Date.now() + 3600_000).toISOString();
+    await supabase
+      .from("users")
+      .update({ email_verify_token: token })
+      .eq("id", user.id);
     return Response.json({ ok: true, token });
   }
 
   return Response.json({ ok: true, token: null });
 }
-
-export { resetTokens };

@@ -61,7 +61,7 @@ export default function AdminPage() {
     fetch("/api/auth/me")
       .then((r) => r.json())
       .then((data) => {
-        if (!data.id || data.role !== "admin") { router.push("/login"); return; }
+        if (!data.id || (data.role !== "admin" && data.role !== "staff")) { router.push("/login"); return; }
         setUser(data);
       })
       .catch(() => router.push("/login"));

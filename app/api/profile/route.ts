@@ -27,7 +27,7 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "No valid fields to update" }, { status: 400 });
   }
 
-  const updated = updateUser(user.id, safeUpdates);
+  const updated = await updateUser(user.id, safeUpdates);
   if (!updated) return Response.json({ error: "Not found" }, { status: 404 });
   const { password: _, ...safe } = updated;
   return Response.json(safe);

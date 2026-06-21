@@ -41,16 +41,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(new URL("/login?error=google_profile", request.url));
     }
 
-    let user = getUserByEmail(googleUser.email);
+    let user = await getUserByEmail(googleUser.email);
 
     if (!user) {
-      user = createUser({
+      user = await createUser({
         id: "user-" + crypto.randomUUID(),
         name: googleUser.name || googleUser.email.split("@")[0],
         email: googleUser.email,
         password: "google-oauth-no-password",
         avatar: googleUser.picture || "",
         role: "staff",
+        emailVerified: true,
         createdAt: new Date().toISOString(),
       });
     }

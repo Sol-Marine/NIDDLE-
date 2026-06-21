@@ -29,8 +29,28 @@ export default function SendPackagePage() {
   const [trackingId, setTrackingId] = useState("");
   const [booking, setBooking] = useState(false);
   const [bookError, setBookError] = useState("");
+  const [stepError, setStepError] = useState("");
+
+  const validateStep = (): string => {
+    if (step === 0) {
+      if (!packageType) return "Please select a package type";
+      if (!size) return "Please select a package size";
+    } else if (step === 1) {
+      if (!senderName.trim()) return "Sender name is required";
+      if (!senderPhone.trim()) return "Sender phone is required";
+      if (!pickupAddress.trim()) return "Pickup address is required";
+    } else if (step === 2) {
+      if (!recipientName.trim()) return "Recipient name is required";
+      if (!recipientPhone.trim()) return "Recipient phone is required";
+      if (!deliveryAddress.trim()) return "Delivery address is required";
+    }
+    return "";
+  };
 
   const nextStep = () => {
+    const error = validateStep();
+    if (error) { setStepError(error); return; }
+    setStepError("");
     if (step < 4) setStep(step + 1);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -564,18 +584,24 @@ export default function SendPackagePage() {
 
               {/* Navigation */}
               {step < 4 && (
-                <div className="flex justify-between mt-6 pt-6 md:mt-10 md:pt-8 border-t border-gray-100">
-                  <button
-                    onClick={prevStep}
-                    disabled={step === 0}
-                    className={`px-5 md:px-8 py-3 md:py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
-                      step === 0
-                        ? "text-gray-300 cursor-not-allowed"
-                        : "border-2 border-gray-200 text-gray-700 hover:border-gray-400"
-                    }`}
-                  >
-                    ← Back
-                  </button>
+                <>
+                  {stepError && (
+                    <div className="mt-4 bg-red-50 border border-red-200 text-red-700 text-sm font-medium px-4 py-3 rounded-xl text-center">
+                      {stepError}
+                    </div>
+                  )}
+                  <div className="flex justify-between mt-6 pt-6 md:mt-10 md:pt-8 border-t border-gray-100">
+                    <button
+                      onClick={() => { setStepError(""); prevStep(); }}
+                      disabled={step === 0}
+                      className={`px-5 md:px-8 py-3 md:py-3.5 rounded-2xl font-semibold transition-all duration-200 ${
+                        step === 0
+                          ? "text-gray-300 cursor-not-allowed"
+                          : "border-2 border-gray-200 text-gray-700 hover:border-gray-400"
+                      }`}
+                    >
+                      ← Back
+                    </button>
 
                   <div className="flex items-center gap-1">
                     {[0, 1, 2, 3].map((i) => (
@@ -595,6 +621,7 @@ export default function SendPackagePage() {
                     Continue →
                   </button>
                 </div>
+                </>
               )}
             </div>
           </div>

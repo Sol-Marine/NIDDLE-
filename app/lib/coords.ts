@@ -23,6 +23,17 @@ export const lagosLocations: Record<string, [number, number]> = {
   "CMS": [6.4524, 3.3907],
 };
 
+export const LAGOS_COORDS: Record<string, [number, number]> = {
+  "Ikeja": [6.6018, 3.3515],
+  "Victoria Island": [6.4281, 3.4219],
+  "Lekki": [6.4551, 3.4466],
+  "Surulere": [6.5016, 3.3583],
+  "Yaba": [6.5064, 3.3745],
+  "Ikoyi": [6.4499, 3.4378],
+  "GRA": [6.6018, 3.3515],
+  "Oshodi": [6.5581, 3.3470],
+};
+
 export function findCoords(address: string): [number, number] {
   for (const [key, coords] of Object.entries(lagosLocations)) {
     if (address.toLowerCase().includes(key.toLowerCase())) return coords;

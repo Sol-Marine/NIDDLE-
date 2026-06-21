@@ -8,10 +8,10 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url);
   if (searchParams.get("count") === "true") {
-    return Response.json({ count: getUnreadCount(user.id) });
+    return Response.json({ count: await getUnreadCount(user.id) });
   }
 
-  return Response.json(getNotifications(user.id));
+  return Response.json(await getNotifications(user.id));
 }
 
 export async function PATCH(request: NextRequest) {
@@ -21,11 +21,11 @@ export async function PATCH(request: NextRequest) {
   const { id } = await request.json();
   if (!id) return Response.json({ error: "Notification id required" }, { status: 400 });
 
-  const userNotifications = getNotifications(user.id);
+  const userNotifications = await getNotifications(user.id);
   const owns = userNotifications.some((n) => n.id === id);
   if (!owns) return Response.json({ error: "Forbidden" }, { status: 403 });
 
-  const updated = markNotificationRead(id);
+  const updated = await markNotificationRead(id);
   if (!updated) return Response.json({ error: "Not found" }, { status: 404 });
   return Response.json(updated);
 }

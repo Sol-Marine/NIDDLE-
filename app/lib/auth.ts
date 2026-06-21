@@ -2,7 +2,8 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 import { getUserById } from "./db";
 
-const SECRET = process.env.SESSION_SECRET || "niddle-fallback-secret";
+const SECRET = process.env.SESSION_SECRET!;
+if (!SECRET) throw new Error("SESSION_SECRET env var is required");
 
 export function signSession(userId: string): string {
   const sig = crypto.createHmac("sha256", SECRET).update(userId).digest("hex");
@@ -36,7 +37,7 @@ export async function getSessionUser() {
   if (!session) return null;
   const userId = verifySession(session.value);
   if (!userId) return null;
-  const user = getUserById(userId);
+  const user = await getUserById(userId);
   if (!user) return null;
   return user;
 }

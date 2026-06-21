@@ -4,8 +4,6 @@ import crypto from "crypto";
 import { createUser, getUserByEmail } from "@/app/lib/db";
 import { rateLimit } from "@/app/lib/rate-limit";
 
-const verifyTokens = new Map<string, { email: string; expiresAt: number }>();
-
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip") || "unknown";
   if (!rateLimit(`register:${ip}`, 3, 60_000)) {
@@ -19,13 +17,13 @@ export async function POST(request: NextRequest) {
   if (password.length < 6) {
     return Response.json({ error: "Password must be at least 6 characters" }, { status: 400 });
   }
-  const existing = getUserByEmail(email);
+  const existing = await getUserByEmail(email);
   if (existing) {
     return Response.json({ error: "Email already registered" }, { status: 409 });
   }
   const hashed = await bcrypt.hash(password, 10);
   const verifyToken = crypto.randomBytes(32).toString("hex");
-  const user = createUser({
+  const user = await createUser({
     id: "user-" + crypto.randomUUID(),
     name: name || email.split("@")[0],
     email,
@@ -35,8 +33,5 @@ export async function POST(request: NextRequest) {
     emailVerifyToken: verifyToken,
     createdAt: new Date().toISOString(),
   });
-  verifyTokens.set(verifyToken, { email, expiresAt: Date.now() + 86400_000 });
   return Response.json({ ok: true, verifyToken }, { status: 201 });
 }
-
-export { verifyTokens };
