@@ -10,7 +10,8 @@ import { RIDERS, PACKAGE_TYPES, SIZES, TIME_SLOTS, SPECIAL_HANDLING, BASE_PRICES
 
 export default function SendPackagePage() {
   const [step, setStep] = useState(0);
-  const [packageType, setPackageType] = useState("");
+  const [packageTypes, setPackageTypes] = useState<string[]>([]);
+  const [otherPackageText, setOtherPackageText] = useState("");
   const [size, setSize] = useState("");
   const [handling, setHandling] = useState("");
   const [selectedRider, setSelectedRider] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export default function SendPackagePage() {
 
   const validateStep = (): string => {
     if (step === 0) {
-      if (!packageType) return "Please select a package type";
+      if (packageTypes.length === 0) return "Please select at least one package type";
       if (!size) return "Please select a package size";
     } else if (step === 1) {
       if (!senderName.trim()) return "Sender name is required";
@@ -95,7 +96,7 @@ export default function SendPackagePage() {
         recipientPhone: recipientPhone || "N/A",
         pickupAddress: pickupAddress || "Not specified",
         deliveryAddress: deliveryAddress || "Not specified",
-        packageType: packageType || "Other",
+        packageType: packageTypes.map((t) => t === "Other" && otherPackageText ? otherPackageText : t).join(", ") || "Other",
         packageSize: size || "Medium",
         handling: handling || "None",
         description: description || "No description",
@@ -181,8 +182,19 @@ export default function SendPackagePage() {
                     }`}
                   />
                 ))}
-              </div>
-            </div>
+                    </div>
+                    {packageTypes.includes("Other") && (
+                      <div className="mt-3">
+                        <input
+                          type="text"
+                          value={otherPackageText}
+                          onChange={(e) => setOtherPackageText(e.target.value)}
+                          placeholder="What are you sending?"
+                          className="w-full border-2 border-gray-100 rounded-2xl p-3 sm:p-4 focus:border-[#D4A24C] focus:ring-2 focus:ring-[#D4A24C]/20 outline-none transition-all"
+                        />
+                      </div>
+                    )}
+                  </div>
 
             <div className="p-5 md:p-8 lg:p-12">
               {/* STEP 0: Package */}
@@ -193,20 +205,20 @@ export default function SendPackagePage() {
                     <p className="text-gray-500 text-sm">Choose a category so we know what we&apos;re working with.</p>
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">Package Type</label>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">Package Type (select all that apply)</label>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                       {PACKAGE_TYPES.map((t) => (
                         <button
                           key={t}
                           type="button"
-                          onClick={() => setPackageType(t)}
+                          onClick={() => setPackageTypes((prev) => prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t])}
                           className={`flex flex-col items-center gap-2 p-3 sm:p-5 rounded-2xl border-2 transition-all duration-200 ${
-                            packageType === t
+                            packageTypes.includes(t)
                               ? "border-[#D4A24C] bg-[#FFF8F0] shadow-md"
                               : "border-gray-100 bg-white hover:border-gray-200"
                           }`}
                         >
-                          <span className="text-2xl sm:text-3xl">📦</span>
+                          <span className="text-2xl sm:text-3xl">{packageTypes.includes(t) ? "✅" : "📦"}</span>
                           <span className="text-sm font-medium">{t}</span>
                         </button>
                       ))}
@@ -493,7 +505,7 @@ export default function SendPackagePage() {
 
                   {/* Package */}
                   <div className="grid md:grid-cols-2 gap-4">
-                    <SummaryCard emoji="📦" label="Package" value={`${packageType || "Other"} · ${size || "Medium"}`} />
+                    <SummaryCard emoji="📦" label="Package" value={`${packageTypes.map((t) => t === "Other" && otherPackageText ? otherPackageText : t).join(", ") || "Other"} · ${size || "Medium"}`} />
                     <SummaryCard emoji="⚠️" label="Handling" value={handling || "None"} />
                     <SummaryCard emoji="📍" label="Pickup" value={pickupAddress || "Not set"} />
                     <SummaryCard emoji="🎯" label="Delivery" value={deliveryAddress || "Not set"} />
@@ -511,7 +523,7 @@ export default function SendPackagePage() {
                       <span className="text-sm text-gray-500">Same-day Lagos delivery</span>
                     </div>
                     <p className="text-3xl md:text-4xl font-extrabold text-[#5A432C]">₦{estimatedPrice.toLocaleString()}</p>
-                    <p className="text-sm text-gray-500 mt-1">Based on {size || "Medium"} {packageType || "parcel"}, {handling !== "None" ? handling : "standard"} handling</p>
+                    <p className="text-sm text-gray-500 mt-1">Based on {size || "Medium"} {packageTypes.map((t) => t === "Other" && otherPackageText ? otherPackageText : t).join(", ") || "parcel"}, {handling !== "None" ? handling : "standard"} handling</p>
                     <div className="flex items-center gap-2 mt-4 text-sm text-gray-600">
                       <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                       Riders available now
@@ -551,7 +563,7 @@ export default function SendPackagePage() {
                     <div className="border-t border-gray-700 pt-6 space-y-3 text-sm">
                       <ReceiptRow label="From" value={`${senderName || "Anonymous"} · ${senderPhone}`} />
                       <ReceiptRow label="To" value={`${recipientName || "Not specified"} · ${recipientPhone}`} />
-                      <ReceiptRow label="Package" value={`${packageType} · ${size}`} />
+                      <ReceiptRow label="Package" value={`${packageTypes.map((t) => t === "Other" && otherPackageText ? otherPackageText : t).join(", ")} · ${size}`} />
                       <ReceiptRow label="Pickup" value={pickupAddress || "Not set"} />
                       <ReceiptRow label="Delivery" value={deliveryAddress || "Not set"} />
                       <ReceiptRow label="Rider" value={selectedRider ? RIDERS.find((r) => r.id === selectedRider)?.name || "Auto-assign" : "Auto-assign"} />
