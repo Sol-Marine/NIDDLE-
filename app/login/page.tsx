@@ -141,11 +141,20 @@ function LoginInner() {
             </button>
           </form>
 
-          <div className="mt-8 text-center space-y-3">
-            <p className="text-sm text-gray-500">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-[#5A432C] font-bold hover:underline">Create one</Link>
-            </p>
+          <div className="mt-8 text-center">
+            <p className="text-sm text-gray-500 mb-4">Don&apos;t have an account?</p>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Link href="/register?type=customer" className="flex-1">
+                <button type="button" className="w-full border-2 border-[#D4A24C] text-[#5A432C] py-3 rounded-2xl font-bold text-sm hover:bg-[#D4A24C]/10 transition-all duration-200">
+                  Register as Customer
+                </button>
+              </Link>
+              <Link href="/register?type=store" className="flex-1">
+                <button type="button" className="w-full bg-[#D4A24C] text-white py-3 rounded-2xl font-bold text-sm hover:bg-[#c49540] transition-all duration-200 shadow-md">
+                  Register as Store
+                </button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>

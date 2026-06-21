@@ -1,16 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
 const STORE_CATEGORIES = ["Food & Drinks", "Groceries", "Pharmacy", "Electronics", "Fashion", "Gifts", "Other"];
 
 export default function RegisterPage() {
+  return (
+    <Suspense>
+      <RegisterInner />
+    </Suspense>
+  );
+}
+
+function RegisterInner() {
   const router = useRouter();
-  const [accountType, setAccountType] = useState<"choose" | "customer" | "store">("choose");
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+  const [accountType, setAccountType] = useState<"choose" | "customer" | "store">(
+    typeParam === "customer" || typeParam === "store" ? typeParam : "choose"
+  );
   const [step, setStep] = useState(0);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
