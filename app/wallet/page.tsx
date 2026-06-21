@@ -43,15 +43,16 @@ export default function WalletPage() {
     if (!amount || amount <= 0) return;
     setTopping(true);
     try {
-      const res = await fetch("/api/wallet", {
+      const res = await fetch("/api/paystack/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount, type: "credit", description: "Wallet top-up" }),
+        body: JSON.stringify({ amount, type: "topup", description: "Wallet top-up" }),
       });
-      if (res.ok) {
-        const tx = await res.json();
+      const data = await res.json();
+      if (data.authorization_url) {
+        window.location.href = data.authorization_url;
+      } else if (res.ok) {
         setWallet((prev) => prev ? { ...prev, balance: prev.balance + amount } : null);
-        setTransactions((prev) => [tx, ...prev]);
         setTopUpAmount("");
       }
     } catch {
