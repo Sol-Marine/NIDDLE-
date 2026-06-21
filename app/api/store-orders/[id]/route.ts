@@ -5,8 +5,29 @@ import {
   getStoreById,
   createDelivery,
   DeliveryOrder,
+  supabase,
 } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth";
+
+async function notifyCustomer(email: string, title: string, message: string, link: string) {
+  if (!email) return;
+  const { data: customer } = await supabase
+    .from("users")
+    .select("id")
+    .eq("email", email)
+    .single();
+  if (customer) {
+    await supabase.from("notifications").insert({
+      id: crypto.randomUUID(),
+      user_id: customer.id,
+      title,
+      message,
+      link,
+      read: false,
+      created_at: new Date().toISOString(),
+    });
+  }
+}
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const user = await getSessionUser();
@@ -19,6 +40,21 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   const body = await request.json();
   const now = new Date().toISOString();
   const updated = await updateStoreOrder(id, { ...body, updatedAt: now });
+
+  const statusMessages: Record<string, { title: string; message: string }> = {
+    confirmed: { title: "Order Confirmed", message: `Your order has been confirmed by the store!` },
+    preparing: { title: "Order Being Prepared", message: `Your order is being prepared now.` },
+    ready: { title: "Order Ready", message: `Your order is ready for pickup!` },
+    "picked-up": { title: "Order Picked Up", message: `Your order has been picked up by the rider!` },
+    "in-transit": { title: "Order In Transit", message: `Your order is on its way to you!` },
+    delivered: { title: "Order Delivered", message: `Your order has been delivered successfully!` },
+    cancelled: { title: "Order Cancelled", message: `Your order has been cancelled.` },
+  };
+
+  if (updated && body.status && statusMessages[body.status]) {
+    const notif = statusMessages[body.status];
+    await notifyCustomer(order.customerEmail, notif.title, notif.message, "/my-orders");
+  }
 
   if (updated && body.status === "ready" && order.status !== "ready") {
     const store = await getStoreById(order.storeId);

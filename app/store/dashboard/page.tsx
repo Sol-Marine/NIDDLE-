@@ -24,7 +24,7 @@ export default function StoreDashboardPage() {
   const [items, setItems] = useState<StoreItem[]>([]);
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages">("orders");
+  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages" | "analytics">("orders");
   const [messages, setMessages] = useState<StoreMessage[]>([]);
 
   const [itemName, setItemName] = useState("");
@@ -165,9 +165,9 @@ export default function StoreDashboardPage() {
       <section className="pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["orders", "items", "add-item", "messages"] as const).map((t) => (
+            {(["orders", "items", "add-item", "messages", "analytics"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${tab === t ? "bg-[#5A432C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#D4A24C]"}`}>
-                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : "💬 Messages"}
+                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : t === "messages" ? "💬 Messages" : "📊 Analytics"}
               </button>
             ))}
           </div>
@@ -277,6 +277,10 @@ export default function StoreDashboardPage() {
           {tab === "messages" && store && (
             <MessagesTab storeId={store.id} ownerId={store.ownerId} messages={messages} setMessages={setMessages} />
           )}
+
+          {tab === "analytics" && (
+            <AnalyticsTab orders={orders} items={items} />
+          )}
         </div>
       </section>
 
@@ -375,6 +379,143 @@ function MessagesTab({ storeId, ownerId, messages, setMessages }: { storeId: str
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function AnalyticsTab({ orders, items }: { orders: StoreOrder[]; items: StoreItem[] }) {
+  const delivered = orders.filter((o) => o.status === "delivered");
+  const cancelled = orders.filter((o) => o.status === "cancelled");
+  const totalRevenue = delivered.reduce((sum, o) => sum + o.totalPrice, 0);
+  const avgOrderValue = delivered.length > 0 ? Math.round(totalRevenue / delivered.length) : 0;
+  const cancellationRate = orders.length > 0 ? Math.round((cancelled.length / orders.length) * 100) : 0;
+
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (6 - i));
+    return d.toDateString();
+  });
+
+  const dailyOrders = last7Days.map((day) => ({
+    day: new Date(day).toLocaleDateString("en", { weekday: "short" }),
+    count: orders.filter((o) => new Date(o.createdAt).toDateString() === day).length,
+    revenue: delivered
+      .filter((o) => new Date(o.createdAt).toDateString() === day)
+      .reduce((sum, o) => sum + o.totalPrice, 0),
+  }));
+
+  const maxDailyOrders = Math.max(...dailyOrders.map((d) => d.count), 1);
+
+  const hourBuckets = Array.from({ length: 24 }, (_, i) => i);
+  const ordersByHour = hourBuckets.map((h) => ({
+    hour: `${h}:00`,
+    count: orders.filter((o) => new Date(o.createdAt).getHours() === h).length,
+  }));
+  const maxHourOrders = Math.max(...ordersByHour.map((h) => h.count), 1);
+
+  const itemSales: Record<string, { name: string; qty: number; revenue: number }> = {};
+  delivered.forEach((o) => {
+    o.items.forEach((item) => {
+      if (!itemSales[item.name]) itemSales[item.name] = { name: item.name, qty: 0, revenue: 0 };
+      itemSales[item.name].qty += item.qty;
+      itemSales[item.name].revenue += item.price * item.qty;
+    });
+  });
+  const topItems = Object.values(itemSales)
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, 5);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-2xl p-5 shadow-md text-center">
+          <p className="text-3xl font-bold text-[#5A432C]">{orders.length}</p>
+          <p className="text-xs text-gray-500 mt-1">Total Orders</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-md text-center">
+          <p className="text-3xl font-bold text-green-600">₦{totalRevenue.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-1">Total Revenue</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-md text-center">
+          <p className="text-3xl font-bold text-[#D4A24C]">₦{avgOrderValue.toLocaleString()}</p>
+          <p className="text-xs text-gray-500 mt-1">Avg Order Value</p>
+        </div>
+        <div className="bg-white rounded-2xl p-5 shadow-md text-center">
+          <p className={`text-3xl font-bold ${cancellationRate > 10 ? "text-red-600" : "text-green-600"}`}>{cancellationRate}%</p>
+          <p className="text-xs text-gray-500 mt-1">Cancellation Rate</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 shadow-md">
+        <h3 className="font-bold text-gray-900 mb-4">Last 7 Days</h3>
+        <div className="flex items-end gap-2 h-40">
+          {dailyOrders.map((d, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <span className="text-[10px] text-gray-500">{d.count}</span>
+              <div
+                className="w-full bg-[#D4A24C] rounded-t-lg transition-all"
+                style={{ height: `${(d.count / maxDailyOrders) * 100}%`, minHeight: d.count > 0 ? "8px" : "2px" }}
+              />
+              <span className="text-[10px] text-gray-400">{d.day}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 shadow-md">
+        <h3 className="font-bold text-gray-900 mb-4">Peak Hours</h3>
+        <div className="flex items-end gap-1 h-32">
+          {ordersByHour.filter((_, i) => i >= 8 && i <= 21).map((h, i) => (
+            <div key={i} className="flex-1 flex flex-col items-center gap-1">
+              <div
+                className="w-full bg-[#C2533D] rounded-t-lg transition-all"
+                style={{ height: `${(h.count / maxHourOrders) * 100}%`, minHeight: h.count > 0 ? "4px" : "1px" }}
+              />
+              <span className="text-[8px] text-gray-400">{h.hour.replace(":00", "")}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {topItems.length > 0 && (
+        <div className="bg-white rounded-2xl p-6 shadow-md">
+          <h3 className="font-bold text-gray-900 mb-4">Top Selling Items</h3>
+          <div className="space-y-3">
+            {topItems.map((item, i) => (
+              <div key={i} className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="w-8 h-8 rounded-full bg-[#D4A24C]/20 flex items-center justify-center text-sm font-bold text-[#5A432C]">
+                    {i + 1}
+                  </span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{item.name}</p>
+                    <p className="text-xs text-gray-500">{item.qty} sold</p>
+                  </div>
+                </div>
+                <span className="text-sm font-bold text-[#D4A24C]">₦{item.revenue.toLocaleString()}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white rounded-2xl p-6 shadow-md">
+        <h3 className="font-bold text-gray-900 mb-4">Menu Status</h3>
+        <div className="grid grid-cols-3 gap-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-gray-900">{items.length}</p>
+            <p className="text-xs text-gray-500">Total Items</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-green-600">{items.filter((i) => i.isAvailable).length}</p>
+            <p className="text-xs text-gray-500">Active</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-red-500">{items.filter((i) => !i.isAvailable).length}</p>
+            <p className="text-xs text-gray-500">Hidden</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
