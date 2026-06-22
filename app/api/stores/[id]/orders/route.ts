@@ -1,60 +1,66 @@
-import { NextRequest } from "next/server";
-import { getStoreOrders, createStoreOrder, getStoreById, updateStore } from "@/app/lib/db";
+import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/app/lib/auth";
+import { supabase } from "@/app/lib/db";
+import { findCoords } from "@/app/lib/coords";
 
-export async function GET(request: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   const user = await getSessionUser();
-  if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+  if (!user) return NextResponse.json({ error: "Login required" }, { status: 401 });
 
-  const { searchParams } = new URL(request.url);
-  const storeId = searchParams.get("storeId");
+  const { id: storeId } = await params;
+  const tracking = req.nextUrl.searchParams.get("tracking");
 
-  if (!storeId) {
-    return Response.json({ error: "storeId required" }, { status: 400 });
+  const { data: store } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("id", storeId)
+    .single();
+
+  if (!store || (store.owner_id !== user.id && user.role !== "admin")) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
-  const store = await getStoreById(storeId);
-  if (!store) return Response.json({ error: "Store not found" }, { status: 404 });
-  if (store.ownerId !== user.id && user.role !== "admin") {
-    return Response.json({ error: "Forbidden" }, { status: 403 });
+  if (!tracking) {
+    const { data: orders } = await supabase
+      .from("store_orders")
+      .select("*")
+      .eq("store_id", storeId)
+      .order("created_at", { ascending: false });
+    return NextResponse.json({ orders: orders || [] });
   }
 
-  const orders = await getStoreOrders(storeId);
-  return Response.json(orders);
-}
+  const { data: activeOrders } = await supabase
+    .from("store_orders")
+    .select("*")
+    .eq("store_id", storeId)
+    .in("status", ["ready", "picked-up", "in-transit"])
+    .not("rider_id", "is", null);
 
-export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const { storeId, customerName, customerPhone, customerEmail, deliveryAddress, items, totalPrice, deliveryFee, specialInstructions, preferredTime } = body;
-
-  if (!storeId || !customerName || !customerPhone || !deliveryAddress || !items?.length) {
-    return Response.json({ error: "Missing required fields" }, { status: 400 });
+  if (!activeOrders || activeOrders.length === 0) {
+    return NextResponse.json({ orders: [] });
   }
 
-  const now = new Date().toISOString();
-  const order = await createStoreOrder({
-    id: `sorder-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    storeId,
-    customerName,
-    customerPhone,
-    customerEmail: customerEmail || "",
-    deliveryAddress,
-    items,
-    totalPrice: Number(totalPrice) || 0,
-    deliveryFee: Number(deliveryFee) || 2000,
-    riderName: "",
-    riderStatus: "pending",
-    status: "pending",
-    specialInstructions: specialInstructions || "",
-    preferredTime: preferredTime || "",
-    createdAt: now,
-    updatedAt: now,
+  const enriched = activeOrders.map((order) => {
+    const pickup = findCoords(store.address || "Lagos, Nigeria");
+    const delivery = findCoords(order.delivery_address || "Lagos, Nigeria");
+
+    return {
+      orderId: order.id,
+      customerName: order.customer_name || "Customer",
+      deliveryAddress: order.delivery_address || "Lagos, Nigeria",
+      riderName: order.rider_name || "Rider",
+      riderStatus: order.rider_status || "pending",
+      riderLat: order.rider_lat || null,
+      riderLng: order.rider_lng || null,
+      pickupLat: pickup[0],
+      pickupLng: pickup[1],
+      deliveryLat: delivery[0],
+      deliveryLng: delivery[1],
+    };
   });
 
-  const store = await getStoreById(storeId);
-  if (store) {
-    await updateStore(storeId, { totalOrders: store.totalOrders + 1 });
-  }
-
-  return Response.json(order, { status: 201 });
+  return NextResponse.json({ orders: enriched });
 }

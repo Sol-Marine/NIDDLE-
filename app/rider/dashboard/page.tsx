@@ -481,6 +481,9 @@ export default function RiderDashboard() {
                 <p>Your batch determines when you can book sessions. Batch 1 gets first access, Batch 12 gets last.</p>
                 <p className="mt-2">Improve your batch by maintaining high acceptance rate, low cancellations, and fast delivery times.</p>
               </div>
+              <a href="/rider/earnings" className="mt-4 inline-block px-4 py-2 bg-green-500 text-white rounded-xl text-sm font-semibold hover:bg-green-600 transition-all">
+                💰 View Earnings
+              </a>
             </div>
           )}
 

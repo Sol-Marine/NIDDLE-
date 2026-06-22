@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import dynamic from "next/dynamic";
+const StoreTrackingMap = dynamic(() => import("../../components/StoreTrackingMap"), { ssr: false });
 import type { Store, StoreItem, StoreOrder, StoreMessage } from "../../lib/db";
 
 const ORDER_STATUS: Record<string, { label: string; color: string; next: string[] }> = {
@@ -35,7 +37,7 @@ export default function StoreDashboardPage() {
   const [items, setItems] = useState<StoreItem[]>([]);
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages" | "analytics">("orders");
+  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages" | "analytics" | "tracking">("orders");
   const [messages, setMessages] = useState<StoreMessage[]>([]);
 
   const [itemName, setItemName] = useState("");
@@ -176,9 +178,9 @@ export default function StoreDashboardPage() {
       <section className="pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["orders", "items", "add-item", "messages", "analytics"] as const).map((t) => (
+            {(["orders", "items", "add-item", "messages", "analytics", "tracking"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${tab === t ? "bg-[#5A432C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#D4A24C]"}`}>
-                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : t === "messages" ? "💬 Messages" : "📊 Analytics"}
+                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : t === "messages" ? "💬 Messages" : t === "analytics" ? "📊 Analytics" : "🗺️ Tracking"}
               </button>
             ))}
           </div>
@@ -298,6 +300,10 @@ export default function StoreDashboardPage() {
 
           {tab === "analytics" && (
             <AnalyticsTab orders={orders} items={items} />
+          )}
+
+          {tab === "tracking" && store && (
+            <StoreTrackingMap storeId={store.id} />
           )}
         </div>
       </section>

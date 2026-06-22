@@ -51,7 +51,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"overview" | "deliveries" | "requests" | "riders">("overview");
+  const [tab, setTab] = useState<"overview" | "deliveries" | "requests" | "riders" | "bundles">("overview");
   const [stats, setStats] = useState<Stats | null>(null);
   const [deliveries, setDeliveries] = useState<Delivery[]>([]);
   const [requests, setRequests] = useState<ReceiveRequest[]>([]);
@@ -174,7 +174,7 @@ export default function AdminPage() {
         )}
 
         <div className="flex gap-2 mb-8 border-b border-gray-200 pb-4 overflow-x-auto">
-          {(["overview", "deliveries", "requests", "riders"] as const).map((t) => (
+          {(["overview", "deliveries", "requests", "riders", "bundles"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -186,6 +186,7 @@ export default function AdminPage() {
               {t === "deliveries" && "📦 Deliveries"}
               {t === "requests" && "📬 Requests"}
               {t === "riders" && "🚴 Riders"}
+              {t === "bundles" && "🔗 Bundles"}
             </button>
           ))}
         </div>
@@ -338,8 +339,136 @@ export default function AdminPage() {
             ))}
           </div>
         )}
+
+        {tab === "bundles" && (
+          <BundlesTab deliveries={deliveries} />
+        )}
       </section>
       <Footer />
     </main>
+  );
+}
+
+function BundlesTab({ deliveries }: { deliveries: Delivery[] }) {
+  const [bundles, setBundles] = useState<{ id: string; store_id: string; order_ids: string[]; total_items: number; total_revenue: number; status: string; created_at: string }[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectedStore, setSelectedStore] = useState("");
+  const [bundling, setBundling] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/orders/bundle")
+      .then((r) => r.json())
+      .then((d) => setBundles(d.bundles || []));
+  }, []);
+
+  const storeOrders = deliveries.filter((d) => d.status === "pending" || d.status === "confirmed");
+
+  const toggleOrder = (id: string) => {
+    setSelectedOrders((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
+  };
+
+  const createBundle = async () => {
+    if (selectedOrders.length < 2 || !selectedStore) return;
+    setBundling(true);
+    try {
+      const res = await fetch("/api/admin/orders/bundle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ storeId: selectedStore, orderIds: selectedOrders }),
+      });
+      const data = await res.json();
+      if (data.id) {
+        setBundles((prev) => [data, ...prev]);
+        setSelectedOrders([]);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setBundling(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-gray-900 mb-4">Create Order Bundle</h3>
+        <p className="text-sm text-gray-500 mb-4">Group nearby orders from the same store to reduce rider trips and save time.</p>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Select Store</label>
+          <select
+            value={selectedStore}
+            onChange={(e) => setSelectedStore(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm"
+          >
+            <option value="">Choose a store...</option>
+            <option value="store-1">Fresh Foods Lagos</option>
+            <option value="store-2">Tech Hub</option>
+            <option value="store-3">Fashion Palace</option>
+          </select>
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Select Orders ({selectedOrders.length} selected)</label>
+          <div className="grid gap-2 max-h-60 overflow-y-auto">
+            {storeOrders.map((order) => (
+              <label
+                key={order.id}
+                className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
+                  selectedOrders.includes(order.id)
+                    ? "border-[#D4A24C] bg-[#FFF8F0]"
+                    : "border-gray-200 hover:border-gray-300"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedOrders.includes(order.id)}
+                  onChange={() => toggleOrder(order.id)}
+                  className="w-4 h-4 accent-[#D4A24C]"
+                />
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-gray-900">{order.senderName} → {order.recipientName}</p>
+                  <p className="text-xs text-gray-500">{order.deliveryAddress}</p>
+                </div>
+                <span className="text-xs text-gray-400">#{order.id.slice(0, 8)}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <button
+          onClick={createBundle}
+          disabled={selectedOrders.length < 2 || !selectedStore || bundling}
+          className="px-6 py-2.5 bg-[#5A432C] text-white rounded-xl text-sm font-semibold disabled:opacity-50 hover:bg-[#D4A24C] transition-all"
+        >
+          {bundling ? "Bundling..." : `Bundle ${selectedOrders.length} Orders`}
+        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-gray-900 mb-4">Existing Bundles</h3>
+        {bundles.length === 0 ? (
+          <p className="text-sm text-gray-500">No bundles created yet.</p>
+        ) : (
+          <div className="grid gap-3">
+            {bundles.map((bundle) => (
+              <div key={bundle.id} className="flex items-center justify-between p-4 rounded-xl bg-gray-50 border border-gray-100">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">Bundle #{bundle.id.slice(-6)}</p>
+                  <p className="text-xs text-gray-500">{bundle.order_ids.length} orders · ₦{bundle.total_revenue.toLocaleString()} revenue</p>
+                </div>
+                <span className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                  bundle.status === "pending" ? "bg-yellow-100 text-yellow-700" :
+                  bundle.status === "assigned" ? "bg-blue-100 text-blue-700" :
+                  "bg-green-100 text-green-700"
+                }`}>
+                  {bundle.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
