@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import RiderChat from "../components/RiderChat";
 
 interface OrderItem {
   name: string;
@@ -185,6 +186,18 @@ export default function MyOrdersPage() {
                       <div className="flex items-start gap-2 text-sm text-gray-500 mb-4 bg-gray-50 rounded-xl p-3">
                         <span className="mt-0.5 shrink-0">📍</span>
                         <span>{order.deliveryAddress}</span>
+                      </div>
+                    )}
+
+                    {/* Chat for active orders */}
+                    {user && !["delivered", "cancelled"].includes(order.status) && (
+                      <div className="mt-4">
+                        <RiderChat
+                          orderId={order.id}
+                          senderId={user.id}
+                          senderName={user.name}
+                          senderRole="customer"
+                        />
                       </div>
                     )}
 

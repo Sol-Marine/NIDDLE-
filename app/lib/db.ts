@@ -198,6 +198,17 @@ export interface StoreReview {
   createdAt: string;
 }
 
+export interface RiderMessage {
+  id: string;
+  orderId: string;
+  senderId: string;
+  senderName: string;
+  senderRole: "rider" | "customer";
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
 /* ── Row ↔ Model Mappers ── */
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

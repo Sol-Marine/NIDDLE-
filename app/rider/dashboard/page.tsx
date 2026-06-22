@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Navbar from "../../components/Navbar";
 import Footer from "../../components/Footer";
+import RiderChat from "../../components/RiderChat";
 
 interface RiderSession {
   id: string;
@@ -424,6 +425,14 @@ export default function RiderDashboard() {
                         {order.rider_status === "in-transit" && "✅ Delivered"}
                       </button>
                     )}
+                    <div className="mt-4">
+                      <RiderChat
+                        orderId={order.id}
+                        senderId={String(selectedRider)}
+                        senderName={RIDERS.find((r) => r.id === selectedRider)?.name || "Rider"}
+                        senderRole="rider"
+                      />
+                    </div>
                   </div>
                 ))
               )}
