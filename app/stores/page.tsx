@@ -48,6 +48,9 @@ export default function StoresPage() {
     return matchCategory && matchSearch;
   });
 
+  const featuredStores = filtered.filter((s) => s.isFeatured);
+  const regularStores = filtered.filter((s) => !s.isFeatured);
+
   return (
     <main className="min-h-screen bg-[#faf7f2]">
       <Navbar />
@@ -113,40 +116,91 @@ export default function StoresPage() {
               )}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filtered.map((store) => (
-                <Link key={store.id} href={`/stores/${store.id}`}>
-                  <div className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl hover:border-[#D4A24C]/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
-                    <div className="h-40 bg-gradient-to-br from-[#D4A24C]/20 to-[#C2533D]/20 flex items-center justify-center">
-                      <span className="text-6xl">{CATEGORY_ICONS[store.category] || "🏪"}</span>
-                    </div>
-                    <div className="p-5">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="font-bold text-gray-900 text-lg">{store.name}</h3>
-                          <span className="text-xs text-[#D4A24C] font-semibold bg-[#D4A24C]/10 px-2 py-0.5 rounded-full">{store.category}</span>
+            <>
+              {featuredStores.length > 0 && (
+                <div className="mb-8">
+                  <h2 className="text-xl font-bold text-[#5A432C] mb-4 flex items-center gap-2">
+                    <span className="text-[#D4A24C]">⭐</span> Featured Stores
+                  </h2>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {featuredStores.map((store) => (
+                      <Link key={store.id} href={`/stores/${store.id}`}>
+                        <div className="bg-white rounded-3xl overflow-hidden shadow-lg border-2 border-[#D4A24C]/30 hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                          {store.bannerUrl ? (
+                            <div className="h-48 bg-cover bg-center" style={{ backgroundImage: `url(${store.bannerUrl})` }}>
+                              <div className="h-full bg-gradient-to-t from-black/60 to-transparent flex items-end p-5">
+                                <div>
+                                  <h3 className="font-bold text-white text-xl">{store.name}</h3>
+                                  {store.promoText && (
+                                    <span className="inline-block mt-1 bg-[#D4A24C] text-white text-xs font-bold px-3 py-1 rounded-full">{store.promoText}</span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="h-40 bg-gradient-to-br from-[#D4A24C]/20 to-[#C2533D]/20 flex items-center justify-center">
+                              <span className="text-6xl">{CATEGORY_ICONS[store.category] || "🏪"}</span>
+                            </div>
+                          )}
+                          <div className="p-5">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <h3 className="font-bold text-gray-900 text-lg">{store.name}</h3>
+                                <span className="text-xs text-[#D4A24C] font-semibold bg-[#D4A24C]/10 px-2 py-0.5 rounded-full">{store.category}</span>
+                              </div>
+                              <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
+                                <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
+                              </span>
+                            </div>
+                            <p className="text-gray-500 text-sm line-clamp-2 mb-3">{store.description || "No description"}</p>
+                            <div className="flex items-center justify-between text-xs text-gray-400">
+                              <span className="flex items-center gap-1 truncate">📍 {store.address}</span>
+                              <span>{store.totalOrders || store.total_orders} orders</span>
+                            </div>
+                          </div>
                         </div>
-                        {reviewCounts[store.id] ? (
-                          <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
-                            <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
-                            <span className="text-xs text-gray-400 font-normal">({reviewCounts[store.id]})</span>
-                          </span>
-                        ) : store.rating > 0 ? (
-                          <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
-                            <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
-                          </span>
-                        ) : null}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{featuredStores.length > 0 ? "All Stores" : "Stores"}</h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {regularStores.map((store) => (
+                  <Link key={store.id} href={`/stores/${store.id}`}>
+                    <div className="bg-white rounded-3xl overflow-hidden shadow-lg border border-gray-100 hover:shadow-xl hover:border-[#D4A24C]/40 transition-all duration-300 hover:-translate-y-1 cursor-pointer">
+                      <div className="h-40 bg-gradient-to-br from-[#D4A24C]/20 to-[#C2533D]/20 flex items-center justify-center">
+                        <span className="text-6xl">{CATEGORY_ICONS[store.category] || "🏪"}</span>
                       </div>
-                      <p className="text-gray-500 text-sm line-clamp-2 mb-3">{store.description || "No description"}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-400">
-                        <span className="flex items-center gap-1 truncate">📍 {store.address}</span>
-                        <span>{store.totalOrders} orders</span>
+                      <div className="p-5">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <h3 className="font-bold text-gray-900 text-lg">{store.name}</h3>
+                            <span className="text-xs text-[#D4A24C] font-semibold bg-[#D4A24C]/10 px-2 py-0.5 rounded-full">{store.category}</span>
+                          </div>
+                          {reviewCounts[store.id] ? (
+                            <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
+                              <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
+                              <span className="text-xs text-gray-400 font-normal">({reviewCounts[store.id]})</span>
+                            </span>
+                          ) : store.rating > 0 ? (
+                            <span className="flex items-center gap-1 text-sm font-semibold text-gray-700">
+                              <span className="text-[#D4A24C]">★</span> {store.rating.toFixed(1)}
+                            </span>
+                          ) : null}
+                        </div>
+                        <p className="text-gray-500 text-sm line-clamp-2 mb-3">{store.description || "No description"}</p>
+                        <div className="flex items-center justify-between text-xs text-gray-400">
+                          <span className="flex items-center gap-1 truncate">📍 {store.address}</span>
+                          <span>{store.totalOrders || store.total_orders} orders</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </section>

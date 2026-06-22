@@ -67,6 +67,7 @@ const tabs = [
   { key: "active", label: "Active", icon: "📦" },
   { key: "history", label: "History", icon: "📋" },
   { key: "payments", label: "Payments", icon: "💳" },
+  { key: "loyalty", label: "Loyalty", icon: "🎁" },
   { key: "settings", label: "Settings", icon: "⚙️" },
 ];
 
@@ -417,6 +418,9 @@ export default function ProfilePage() {
           </div>
         )}
 
+        {/* Loyalty Tab */}
+        {tab === "loyalty" && <LoyaltyTab />}
+
         {/* Settings Tab */}
         {tab === "settings" && (
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 md:p-8 max-w-2xl">
@@ -453,5 +457,119 @@ export default function ProfilePage() {
       </section>
       <Footer />
     </main>
+  );
+}
+
+function LoyaltyTab() {
+  const [loyalty, setLoyalty] = useState<{ points: number; tier: string; nextTier: string | null; pointsToNext: number; redeemValue: number } | null>(null);
+  const [history, setHistory] = useState<{ id: string; type: string; points: number; description: string; created_at: string }[]>([]);
+  const [redeeming, setRedeeming] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/loyalty")
+      .then((r) => r.json())
+      .then(setLoyalty)
+      .catch(() => {});
+    fetch("/api/loyalty?type=history")
+      .then((r) => r.json())
+      .then((d) => setHistory(d.history || []))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const redeem = async () => {
+    setRedeeming(true);
+    try {
+      const res = await fetch("/api/loyalty", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "redeem" }),
+      });
+      const data = await res.json();
+      if (data.discount) {
+        setLoyalty((prev) => prev ? { ...prev, points: data.remaining, redeemValue: Math.floor(data.remaining / 10) } : null);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setRedeeming(false);
+    }
+  };
+
+  if (loading) return <div className="text-center py-8"><div className="inline-block w-6 h-6 border-4 border-[#D4A24C] border-t-transparent rounded-full animate-spin" /></div>;
+
+  const tierColors: Record<string, string> = {
+    New: "from-gray-400 to-gray-500",
+    Bronze: "from-amber-600 to-amber-700",
+    Silver: "from-gray-300 to-gray-400",
+    Gold: "from-yellow-400 to-yellow-500",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className={`bg-gradient-to-r ${tierColors[loyalty?.tier || "New"]} rounded-3xl p-8 text-white shadow-xl`}>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <p className="text-white/80 text-sm">Your Tier</p>
+            <h3 className="text-3xl font-extrabold">{loyalty?.tier || "New"}</h3>
+          </div>
+          <div className="text-right">
+            <p className="text-white/80 text-sm">Points</p>
+            <p className="text-3xl font-extrabold">{loyalty?.points || 0}</p>
+          </div>
+        </div>
+        {loyalty?.nextTier && (
+          <div className="mt-4">
+            <div className="flex justify-between text-sm mb-1">
+              <span>{loyalty.tier}</span>
+              <span>{loyalty.nextTier} ({loyalty.pointsToNext} pts to go)</span>
+            </div>
+            <div className="w-full bg-white/20 rounded-full h-2">
+              <div className="bg-white rounded-full h-2 transition-all" style={{ width: `${Math.min(100, ((loyalty.points - (loyalty.tier === "Bronze" ? 500 : loyalty.tier === "Silver" ? 2000 : 0)) / (loyalty.tier === "Bronze" ? 1500 : 3000)) * 100)}%` }} />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center">
+          <p className="text-2xl font-bold text-[#D4A24C]">{loyalty?.redeemValue || 0}</p>
+          <p className="text-xs text-gray-500">Redeemable (₦)</p>
+          <button
+            onClick={redeem}
+            disabled={!loyalty?.redeemValue || redeeming}
+            className="mt-3 w-full px-4 py-2 bg-[#D4A24C] text-white rounded-xl text-sm font-semibold disabled:opacity-50 hover:bg-[#c49540] transition-all"
+          >
+            {redeeming ? "Redeeming..." : "Redeem Points"}
+          </button>
+        </div>
+        <div className="bg-white rounded-2xl p-5 border border-gray-100 text-center">
+          <p className="text-2xl font-bold text-gray-900">10</p>
+          <p className="text-xs text-gray-500">Points = ₦1</p>
+          <p className="text-xs text-gray-400 mt-2">Earn 1 point per ₦10 spent</p>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl p-5 border border-gray-100">
+        <h3 className="font-bold text-gray-900 mb-3">Points History</h3>
+        {history.length === 0 ? (
+          <p className="text-sm text-gray-500 text-center py-4">No points history yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {history.map((h) => (
+              <div key={h.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50">
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{h.description}</p>
+                  <p className="text-xs text-gray-500">{new Date(h.created_at).toLocaleDateString("en-NG", { month: "short", day: "numeric" })}</p>
+                </div>
+                <span className={`text-sm font-bold ${h.type === "earn" ? "text-green-600" : "text-red-500"}`}>
+                  {h.type === "earn" ? "+" : ""}{h.points}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }

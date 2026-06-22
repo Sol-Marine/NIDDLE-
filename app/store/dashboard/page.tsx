@@ -37,7 +37,7 @@ export default function StoreDashboardPage() {
   const [items, setItems] = useState<StoreItem[]>([]);
   const [orders, setOrders] = useState<StoreOrder[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages" | "analytics" | "tracking">("orders");
+  const [tab, setTab] = useState<"orders" | "items" | "add-item" | "messages" | "analytics" | "tracking" | "subscription">("orders");
   const [messages, setMessages] = useState<StoreMessage[]>([]);
 
   const [itemName, setItemName] = useState("");
@@ -178,9 +178,9 @@ export default function StoreDashboardPage() {
       <section className="pb-24 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="flex gap-2 mb-6 overflow-x-auto">
-            {(["orders", "items", "add-item", "messages", "analytics", "tracking"] as const).map((t) => (
+            {(["orders", "items", "add-item", "messages", "analytics", "tracking", "subscription"] as const).map((t) => (
               <button key={t} onClick={() => setTab(t)} className={`px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${tab === t ? "bg-[#5A432C] text-white" : "bg-white text-gray-600 border border-gray-200 hover:border-[#D4A24C]"}`}>
-                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : t === "messages" ? "💬 Messages" : t === "analytics" ? "📊 Analytics" : "🗺️ Tracking"}
+                {t === "orders" ? "📦 Orders" : t === "items" ? "📋 Menu Items" : t === "add-item" ? "➕ Add Item" : t === "messages" ? "💬 Messages" : t === "analytics" ? "📊 Analytics" : t === "tracking" ? "🗺️ Tracking" : "⭐ Subscription"}
               </button>
             ))}
           </div>
@@ -304,6 +304,10 @@ export default function StoreDashboardPage() {
 
           {tab === "tracking" && store && (
             <StoreTrackingMap storeId={store.id} />
+          )}
+
+          {tab === "subscription" && store && (
+            <SubscriptionTab storeId={store.id} />
           )}
         </div>
       </section>
@@ -539,6 +543,98 @@ function AnalyticsTab({ orders, items }: { orders: StoreOrder[]; items: StoreIte
             <p className="text-xs text-gray-500">Hidden</p>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function SubscriptionTab({ storeId }: { storeId: string }) {
+  const [plans, setPlans] = useState<{ id: string; name: string; price: number; commission: number; features: string[]; maxItems: number; featured: boolean }[]>([]);
+  const [current, setCurrent] = useState("basic");
+  const [expires, setExpires] = useState<string | null>(null);
+  const [upgrading, setUpgrading] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(`/api/stores/${storeId}/subscription`)
+      .then((r) => r.json())
+      .then((d) => {
+        setPlans(d.plans || []);
+        setCurrent(d.current || "basic");
+        setExpires(d.expires);
+      });
+  }, [storeId]);
+
+  const upgrade = async (planId: string) => {
+    setUpgrading(planId);
+    try {
+      const res = await fetch(`/api/stores/${storeId}/subscription`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCurrent(planId);
+        setExpires(data.expires);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setUpgrading(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h3 className="font-bold text-gray-900 mb-2">Your Plan: <span className="text-[#D4A24C]">{plans.find((p) => p.id === current)?.name || "Basic"}</span></h3>
+        {expires && <p className="text-sm text-gray-500">Expires: {new Date(expires).toLocaleDateString("en-NG")}</p>}
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        {plans.map((plan) => (
+          <div
+            key={plan.id}
+            className={`bg-white rounded-3xl p-6 shadow-sm border-2 transition-all ${
+              current === plan.id ? "border-[#D4A24C] shadow-md" : "border-gray-100 hover:border-gray-200"
+            }`}
+          >
+            {plan.featured && current !== plan.id && (
+              <span className="inline-block bg-[#D4A24C] text-white text-xs font-bold px-3 py-1 rounded-full mb-3">Most Popular</span>
+            )}
+            <h3 className="text-xl font-bold text-gray-900">{plan.name}</h3>
+            <p className="text-3xl font-extrabold text-[#5A432C] mt-2">
+              {plan.price === 0 ? "Free" : `₦${plan.price.toLocaleString()}`}
+              {plan.price > 0 && <span className="text-sm font-normal text-gray-500">/month</span>}
+            </p>
+            <p className="text-sm text-gray-500 mt-1">{plan.commission}% commission per order</p>
+            <ul className="mt-4 space-y-2">
+              {plan.features.map((f, i) => (
+                <li key={i} className="text-sm text-gray-600 flex items-start gap-2">
+                  <span className="text-green-500 mt-0.5">✓</span> {f}
+                </li>
+              ))}
+            </ul>
+            {current !== plan.id && (
+              <button
+                onClick={() => upgrade(plan.id)}
+                disabled={upgrading === plan.id}
+                className={`mt-6 w-full py-3 rounded-2xl font-semibold text-sm transition-all ${
+                  plan.price === 0
+                    ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    : "bg-[#5A432C] text-white hover:bg-[#D4A24C]"
+                } disabled:opacity-50`}
+              >
+                {upgrading === plan.id ? "Upgrading..." : current === plan.id ? "Current Plan" : plan.price === 0 ? "Downgrade" : "Upgrade"}
+              </button>
+            )}
+            {current === plan.id && (
+              <div className="mt-6 w-full py-3 rounded-2xl font-semibold text-sm text-center bg-[#D4A24C]/10 text-[#D4A24C]">
+                Current Plan
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

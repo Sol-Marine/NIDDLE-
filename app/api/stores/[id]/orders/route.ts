@@ -34,7 +34,7 @@ export async function GET(
 
   const { data: activeOrders } = await supabase
     .from("store_orders")
-    .select("*")
+    .select("*, riders!inner(id, name, lat, lng)")
     .eq("store_id", storeId)
     .in("status", ["ready", "picked-up", "in-transit"])
     .not("rider_id", "is", null);
@@ -46,15 +46,16 @@ export async function GET(
   const enriched = activeOrders.map((order) => {
     const pickup = findCoords(store.address || "Lagos, Nigeria");
     const delivery = findCoords(order.delivery_address || "Lagos, Nigeria");
+    const riderData = order.riders as { name?: string; lat?: number; lng?: number } | null;
 
     return {
       orderId: order.id,
       customerName: order.customer_name || "Customer",
       deliveryAddress: order.delivery_address || "Lagos, Nigeria",
-      riderName: order.rider_name || "Rider",
+      riderName: riderData?.name || order.rider_name || "Rider",
       riderStatus: order.rider_status || "pending",
-      riderLat: order.rider_lat || null,
-      riderLng: order.rider_lng || null,
+      riderLat: riderData?.lat || null,
+      riderLng: riderData?.lng || null,
       pickupLat: pickup[0],
       pickupLng: pickup[1],
       deliveryLat: delivery[0],

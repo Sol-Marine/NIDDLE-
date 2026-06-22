@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/db";
 import { getPricingForAddress } from "@/app/lib/pricing";
 import { sendOrderConfirmation, sendNewOrderToStore } from "@/app/lib/email";
+import { sendOrderConfirmationSMS } from "@/app/lib/sms";
+
+const POINTS_PER_Naira = 0.1;
 
 interface CartItem {
   storeId: string;
@@ -128,6 +131,36 @@ export async function POST(req: NextRequest) {
       sendOrderConfirmation(customerEmail, customerName, store.name, orderId, subtotal + deliveryFee, estimatedDeliveryTime).catch(() => {});
     }
     sendNewOrderToStore(store.email as string, store.name, customerName, orderId, subtotal + deliveryFee).catch(() => {});
+
+    // Send SMS (non-blocking)
+    if (customerPhone) {
+      sendOrderConfirmationSMS(customerPhone, orderId, subtotal + deliveryFee).catch(() => {});
+    }
+
+    // Award loyalty points (non-blocking)
+    const pointsEarned = Math.floor((subtotal + deliveryFee) * POINTS_PER_Naira);
+    if (pointsEarned > 0) {
+      const { data: customerUser } = await supabase
+        .from("users")
+        .select("id, loyalty_points")
+        .eq("email", customerEmail)
+        .single();
+      if (customerUser) {
+        await supabase
+          .from("users")
+          .update({ loyalty_points: (customerUser.loyalty_points || 0) + pointsEarned })
+          .eq("id", customerUser.id);
+        await supabase.from("loyalty_history").insert({
+          id: crypto.randomUUID(),
+          user_id: customerUser.id,
+          type: "earn",
+          points: pointsEarned,
+          order_id: orderId,
+          description: `Earned ${pointsEarned} points for order at ${store.name}`,
+          created_at: new Date().toISOString(),
+        });
+      }
+    }
   }
 
   return NextResponse.json({

@@ -40,6 +40,10 @@ export async function POST(request: NextRequest) {
       isActive: true,
       openingHours: openingHours || "9:00 AM - 6:00 PM",
       createdAt: now,
+      isFeatured: false,
+      bannerUrl: "",
+      promoText: "",
+      total_orders: 0,
     });
 
     return Response.json(store, { status: 201 });

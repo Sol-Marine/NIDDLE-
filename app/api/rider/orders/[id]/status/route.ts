@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/db";
+import { sendOrderDeliveredSMS, sendRiderPickupSMS } from "@/app/lib/sms";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -69,6 +70,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         read: false,
         created_at: new Date().toISOString(),
       });
+    }
+
+    // SMS to customer on delivery
+    if (order.customer_phone) {
+      sendOrderDeliveredSMS(order.customer_phone, id).catch(() => {});
     }
 
     if (riderId) {

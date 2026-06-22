@@ -63,6 +63,10 @@ export async function POST(request: NextRequest) {
       isActive: true,
       openingHours: storeHours || "9:00 AM - 6:00 PM",
       createdAt: now,
+      isFeatured: false,
+      bannerUrl: "",
+      promoText: "",
+      total_orders: 0,
     });
   }
 

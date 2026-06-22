@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/app/lib/db";
 import { sendRiderAssigned } from "@/app/lib/email";
+import { sendRiderAssignedSMS } from "@/app/lib/sms";
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -52,6 +53,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       });
     }
     sendRiderAssigned(customerEmail, order.customer_name, riderName, id).catch(() => {});
+    if (order.customer_phone) {
+      sendRiderAssignedSMS(order.customer_phone, riderName, id).catch(() => {});
+    }
   }
 
   return NextResponse.json({ success: true });

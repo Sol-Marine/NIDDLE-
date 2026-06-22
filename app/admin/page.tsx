@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import RevenueChart from "../components/RevenueChart";
 import { STATUS_COLORS, STATUS_OPTIONS } from "@/app/lib/constants";
 
 interface Stats {
@@ -192,22 +193,25 @@ export default function AdminPage() {
         </div>
 
         {tab === "overview" && (
-          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-            <h2 className="text-xl font-bold mb-4">Recent Deliveries</h2>
-            <div className="space-y-3">
-              {deliveries.slice(0, 5).map((d) => (
-                <div key={d.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-                  <div>
-                    <p className="font-semibold">{d.id}</p>
-                    <p className="text-sm text-gray-500 truncate">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
+          <div className="space-y-6">
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
+              <h2 className="text-xl font-bold mb-4">Recent Deliveries</h2>
+              <div className="space-y-3">
+                {deliveries.slice(0, 5).map((d) => (
+                  <div key={d.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
+                    <div>
+                      <p className="font-semibold">{d.id}</p>
+                      <p className="text-sm text-gray-500 truncate">{d.packageType} · {d.pickupAddress} → {d.deliveryAddress}</p>
+                    </div>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100 text-gray-600"}`}>
+                      {d.status.replace(/-/g, " ")}
+                    </span>
                   </div>
-                  <span className={`text-xs font-semibold px-3 py-1 rounded-full ${STATUS_COLORS[d.status] || "bg-gray-100 text-gray-600"}`}>
-                    {d.status.replace(/-/g, " ")}
-                  </span>
-                </div>
-              ))}
-              {deliveries.length === 0 && <p className="text-gray-400 text-sm">No deliveries yet</p>}
+                ))}
+                {deliveries.length === 0 && <p className="text-gray-400 text-sm">No deliveries yet</p>}
+              </div>
             </div>
+            <RevenueChart />
           </div>
         )}
 

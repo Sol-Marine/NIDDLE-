@@ -139,6 +139,10 @@ export interface Store {
   isActive: boolean;
   openingHours: string;
   createdAt: string;
+  isFeatured: boolean;
+  bannerUrl: string;
+  promoText: string;
+  total_orders: number;
 }
 
 export interface StoreItem {
@@ -480,6 +484,10 @@ function fromStoreRow(row: any): Store {
     isActive: row.is_active as boolean,
     openingHours: row.opening_hours as string,
     createdAt: row.created_at as string,
+    isFeatured: row.is_featured as boolean,
+    bannerUrl: row.banner_url as string,
+    promoText: row.promo_text as string,
+    total_orders: row.total_orders as number,
   };
 }
 
